@@ -25,9 +25,12 @@ GHashTable *pwdInfo;
 #endif
 #endif
 
+#ifdef _LINUX_LIMITS_H
 #undef _LINUX_LIMITS_H
 #include <linux/limits.h>
-#ifndef _LINUX_LIMITS_H
+#endif
+
+#ifndef ARG_MAX
 #define ARG_MAX 65535
 #endif
 

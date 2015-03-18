@@ -10,6 +10,8 @@ or
 
 If DESTDIR environment variable is present, it will try to install to that directory. Otherwise, if /usr/bin is writeable, it will install there, else it will install in ~/bin
 
+If you are building for cygwin, the glib-2.0 libs seem messed up (maybe just on my install). Uncomment the #define NO_GLIB line at the top of myps2.c to work around this.
+
 LICENSE
 =======
 
