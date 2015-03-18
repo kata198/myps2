@@ -25,6 +25,7 @@ To create very fast and specialized alternates to the standard ps command.
 
 Each operation is a different command for maximum speed (direct codepath instead of conditional). No Arguments.
 
+Additionally, cygwin comes with a VERY WEAK ps implementation. It will not even show arguments to programs! This will.
 
 Applications
 ============
