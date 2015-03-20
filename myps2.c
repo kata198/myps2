@@ -46,6 +46,34 @@ unsigned int myUidStrLen;
 unsigned int myUid;
 
 
+#ifdef QUOTE_ARGS
+char *escapeQuotes(char *input)
+{
+	unsigned int len;
+	char *ret, *retPtr;
+	char cur;
+
+	len = strlen(input);
+
+	retPtr = ret = malloc( sizeof(char) * len * 2 + 1); // Maximum length
+
+	while( (cur = *input) != 0)
+	{
+		if(cur == '\"' || cur == '$')
+		{
+			*retPtr = '\\';
+			retPtr++;
+		}
+		*retPtr = cur;
+		retPtr++;
+		input++;
+	}
+	*retPtr = '\0';
+
+	return ret;
+}
+#endif
+
 unsigned int getProcessOwner(char *pidStr)
 {
 	FILE *statusFile;
@@ -105,6 +133,9 @@ void printCmdLineStr(char *pidStr, unsigned int ownerUid)
 	static char *buffer = NULL;
 
 	unsigned int bufferLen = 0;
+	#ifdef QUOTE_ARGS
+	char *tmpEscaped;
+	#endif
 	
 	#ifdef ALL_PROCS
 	char *pwName;
@@ -168,7 +199,9 @@ void printCmdLineStr(char *pidStr, unsigned int ownerUid)
     while( (ptr - buffer) < bufferLen )
 	{
 		#ifdef QUOTE_ARGS
-		printf(" \"%s\"", ptr);
+		tmpEscaped = escapeQuotes(ptr);
+		printf(" \"%s\"", tmpEscaped);
+		free(tmpEscaped);
 		#else
 		printf(" %s", ptr);
 		#endif
