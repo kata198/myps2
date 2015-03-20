@@ -12,6 +12,10 @@
 #include <dirent.h>
 
 
+#if defined(__CYGWIN__)
+#warning cygwin detected, if you get failures to link below for g_hash whatever, add -D NO_GLIB to the CFLAGS in the Makefile.
+#endif
+
 // Uncomment this line to build without glib.
 //#define NO_GLIB
 
@@ -120,6 +124,9 @@ void printCmdLineStr(char *pidStr, unsigned int ownerUid)
 	bufferLen = fread(buffer, 1, ARG_MAX + (EXTRA_ARG_BUFFER - 1), cmdlineFile);
 	fclose(cmdlineFile);
 
+    if(bufferLen == 0)
+		return; // No cmdline, kthread and the like
+
 
 	#ifdef ALL_PROCS
 	#ifndef NO_GLIB
@@ -128,6 +135,8 @@ void printCmdLineStr(char *pidStr, unsigned int ownerUid)
 	{
 	#endif
 		struct passwd *pwinfo = getpwuid(ownerUid);
+		if(pwinfo == NULL)
+			return; // No longer active process
 	#ifndef NO_GLIB
 		pwName = malloc(strlen(pwinfo->pw_name)+1);
 		strcpy(pwName, pwinfo->pw_name);
