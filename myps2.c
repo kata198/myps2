@@ -158,6 +158,7 @@ void printCmdLineStr(char *pidStr, unsigned int ownerUid)
     if(bufferLen == 0)
 		return; // No cmdline, kthread and the like
 
+	buffer[bufferLen] = '\0';
 
 	#ifdef ALL_PROCS
 	#ifndef NO_GLIB
