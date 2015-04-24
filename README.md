@@ -21,7 +21,7 @@ Both applications support representing the max argument length on the system.
 
 myps2, ps2 - All processes
 
-myps2_quotes, ps2_quotes - These group each argument to the programs with quotes around them. These applications I find very useful with applications that have string arguments that may contain spaces (like a comment field).
+myps2_quoted, ps2_quoted - These group each argument to the programs with quotes around them. These applications I find very useful with applications that have string arguments that may contain spaces (like a comment field).
 
 myps2_cmdonly, ps2_cmdonly - Show only the command name, no arguments. This can be useful for use with other applications that only use the command name, like killall and pidof.
 
