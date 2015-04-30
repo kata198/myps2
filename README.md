@@ -45,32 +45,32 @@ myps2\_cmdonly, ps2\_cmdonly - Show only the command name, no arguments. This ca
 Example
 =======
 
- | [media@silverslave myps2]$ mypst2\_quoted root
- |        1        /sbin/init
- |      166        /usr/lib/systemd/systemd-journald
- |      207        /usr/lib/systemd/systemd-udevd
- |      359        /usr/bin/bumblebeed
- |      361        /usr/lib/systemd/systemd-logind
- |      362        /usr/bin/irqbalance "--foreground"
- |      571        /usr/lib/xorg-server/Xorg "-nolisten" "tcp" ":0" "vt1" "-auth" "/tmp/serverauth.M0NhxCbWts"
- |      |
- |      \\ \_\_\_\_
- |              572        Thread [1] ( /usr/lib/xorg-server/Xorg )
- | 
- |      614        dhcpcd "-4" "-q" "-t" "30" "-L" "wlp13s0"
- |      690        /usr/lib/upower/upowerd
- |      |
- |      \\ \_\_\_\_
- |              691        Thread [1] ( /usr/lib/upower/upowerd )
- |              692        Thread [2] ( /usr/lib/upower/upowerd )
- | 
- |      723        /usr/lib/udisks2/udisksd "--no-debug"
- |      |
- |      \\ \_\_\_\_
- |              724        Thread [1] ( /usr/lib/udisks2/udisksd )
- |              726        Thread [2] ( /usr/lib/udisks2/udisksd )
- |              730        Thread [3] ( /usr/lib/udisks2/udisksd )
- |              737        Thread [4] ( /usr/lib/udisks2/udisksd )
+  [media@silverslave myps2]$ mypst2\_quoted root
+        1        /sbin/init
+      166        /usr/lib/systemd/systemd-journald
+      207        /usr/lib/systemd/systemd-udevd
+      359        /usr/bin/bumblebeed
+      361        /usr/lib/systemd/systemd-logind
+      362        /usr/bin/irqbalance "--foreground"
+      571        /usr/lib/xorg-server/Xorg "-nolisten" "tcp" ":0" "vt1" "-auth" "/tmp/serverauth.M0NhxCbWts"
+      |
+      \\ \_\_\_\_
+              572        Thread [1] ( /usr/lib/xorg-server/Xorg )
+ 
+      614        dhcpcd "-4" "-q" "-t" "30" "-L" "wlp13s0"
+      690        /usr/lib/upower/upowerd
+      |
+      \\ \_\_\_\_
+              691        Thread [1] ( /usr/lib/upower/upowerd )
+              692        Thread [2] ( /usr/lib/upower/upowerd )
+ 
+      723        /usr/lib/udisks2/udisksd "--no-debug"
+      |
+      \\ \_\_\_\_
+              724        Thread [1] ( /usr/lib/udisks2/udisksd )
+              726        Thread [2] ( /usr/lib/udisks2/udisksd )
+              730        Thread [3] ( /usr/lib/udisks2/udisksd )
+              737        Thread [4] ( /usr/lib/udisks2/udisksd )
 
 
 
