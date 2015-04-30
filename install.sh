@@ -5,7 +5,19 @@ echoAndExec() {
 	$@;
 }
 
-TARGETS="bindir/myps2 bindir/myps2_cmdonly bindir/myps2_quoted bindir/ps2 bindir/ps2_cmdonly bindir/ps2_quoted"
+export TARGETS="bindir/myps2 \
+	bindir/myps2_cmdonly \
+	bindir/myps2_quoted \
+	bindir/mypst2 \
+	bindir/mypst2_cmdonly \
+	bindir/mypst2_quoted \
+	bindir/ps2 \
+	bindir/ps2_cmdonly \
+	bindir/ps2_quoted \
+	bindir/pst2 \
+	bindir/pst2_cmdonly \
+	bindir/pst2_quoted"
+
 make all || ./build.sh;
 
 
