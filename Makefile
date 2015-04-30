@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-CFLAGS=-O2 -L/lib64 
+CFLAGS=-O3 -L/lib64 
 EXTRA_ALL_PROCS_FLAGS = $(shell pkg-config glib-2.0 --cflags --libs || echo '-DNO_GLIB')
 $(shell mkdir -p bindir)
 
