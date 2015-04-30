@@ -45,7 +45,7 @@ myps2\_cmdonly, ps2\_cmdonly - Show only the command name, no arguments. This ca
 Example
 =======
 
-	[media@silverslave myps2]$ mypst2\_quoted root
+	[media@silverslave myps2]$ mypst2_quoted root
 	1        /sbin/init
 	6        /usr/lib/systemd/systemd-journald
 	7        /usr/lib/systemd/systemd-udevd
