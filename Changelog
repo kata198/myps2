@@ -1,0 +1,70 @@
+* Thu Apr 30 01:11:36 EDT 2015 Tim Savannah <kata198@gmail.com>
+- Relase version 2.0. All below 
+- Add support for viewing threads. This is accomplished by the "t"
+  variant (mypst2, pst2, mypst2_quoted etc..)
+- Allow a single argument for the myps* variants. The argument is a
+  username to filter (default of no argument is still current user)
+- Vastly improve performance. Got some good optimizations in here.
+  Several times faster than previous versions.
+- Draw trees when in thread mdoe, to associate  threads to their parent
+  process. "ps auxwwH --forest"  is invalid -- PS can't seem to do this,
+  but we can.
+- Fix compilation when "bindir" was removed
+- Support running Makefile directly.
+- Update indentation and include a couple comments
+- Update documentation a litttle bit
+- A little better structure to make future variants easier
+
+commit 3284e19e139493c2125adfcfa849980a2d369296
+Author: Tim Savannah <kata198@gmail.com>
+Date:   Fri Apr 24 16:16:27 2015 -0400
+
+    fix _quotes -> _
+
+commit cecc0ebcdeeae7d392b9c55a7162f63aed725d66
+Author: Tim Savannah <kata198@gmail.com>
+Date:   Mon Mar 23 13:33:46 2015 -0400
+
+    missed during transfer
+
+commit 3cb8af861704784a6b49760537ff985ea22c2ea2
+Author: Tim Savannah <kata198@gmail.com>
+Date:   Fri Mar 20 16:19:29 2015 -0400
+
+    Quote better
+
+commit b038ebf599b83c4211dbd695d1d3c27e732f6e2a
+Author: Tim Savannah <kata198@gmail.com>
+Date:   Fri Mar 20 15:15:44 2015 -0400
+
+    No longer show duplicate entries when kthreads are encountered, and fix issue with cygwin processes. Also provide explicit warning for cygwin glib support
+
+commit 8a243e27f3a063da7feb6b0020cebab87eab099c
+Author: Tim Savannah <kata198@gmail.com>
+Date:   Wed Mar 18 17:21:33 2015 -0400
+
+    Update readme order
+
+commit 6e2d998fa75490b6ca4bd063c125c20b9ac7be72
+Author: Tim Savannah <kata198@gmail.com>
+Date:   Wed Mar 18 17:17:40 2015 -0400
+
+    Update readme with additional information that cygwin ps sucks and this is better
+
+commit 63cdf043b2ab351be3d09b31fba3973b058fd639
+Author: Tim Savannah <kata198@gmail.com>
+Date:   Wed Mar 18 17:15:35 2015 -0400
+
+    Update cygwin info
+
+commit 7e2d9062a7735301dce2e8d742f40fe6b151ad6a
+Author: Tim Savannah <kata198@gmail.com>
+Date:   Wed Mar 18 17:03:18 2015 -0400
+
+    Initial Checkin
+
+commit f4a4da927834b62daa180662424c288d9638b11d
+Author: Tim Savannah <kata198@gmail.com>
+Date:   Wed Mar 18 16:54:48 2015 -0400
+
+    Initial commit
