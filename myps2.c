@@ -55,6 +55,30 @@ unsigned int myUid;
 volatile const char *author = "Created by Tim Savannah <kata198@gmail.com>. I love you all so much.";
 volatile const char *version = "2.0";
 
+static char **searchItems = NULL;
+
+char *strnstr(char *haystack, char *needle, unsigned int len)
+{
+    unsigned int i, j;
+    char *ret;
+    for(i=0; i < len; i++)
+    {
+        if(haystack[i] == needle[0])
+        {
+            ret = &haystack[i];
+            i++;
+            for(j=1; i < len; i++, j++)
+            {
+                if(needle[j] == '\0')
+                    return ret;
+                if(needle[j] != haystack[i])
+                    break;
+            }
+         }
+    }
+    return NULL;
+}
+
 #ifdef SHOW_THREADS
   #define THREADS_USE_TREE // For now, default to always showing tree format in threads mode. Comment out this line to get a less-pleasing view.
 #endif
@@ -210,6 +234,28 @@ void printCmdLineStr(char *pidStr
                 return; // No cmdline, kthread and the like
 
         buffer[bufferLen] = '\0';
+        //printf("searchITem is: %s\n", searchItem);
+        //printf("buffer is: %s\n", buffer);
+        if(searchItems != NULL)
+        {
+                unsigned int searchI = 0;
+                #ifdef CMD_ONLY
+                  unsigned int cmdNameLen = strlen(buffer);
+                #endif
+                while(searchItems[searchI] != NULL)
+                {
+                        #ifdef CMD_ONLY
+                          // Command only we want the first arg only
+                          if(strnstr(buffer, searchItems[searchI], cmdNameLen) == NULL)
+                                  return;
+                        #else
+                          if(strnstr(buffer, searchItems[searchI], bufferLen) == NULL)
+                                  return;
+                        #endif
+                        searchI++;
+                }
+        }
+                
 
         #ifdef SHOW_THREADS
           if(parentPidStr != NULL)
@@ -345,24 +391,40 @@ int main(int argc, char* argv[])
           {
                   myUid = getuid();
           }
-          else if(argc == 2)
+          else if(argc >= 2)
           {
-                  struct passwd *pwdReq;
-                  pwdReq = getpwnam(argv[1]);
-                  if(pwdReq == NULL)
+                  if(argv[1][0] == '.' && argv[1][1] == '\0')
                   {
-                        fprintf(stderr, "Cannot resolve username: \"%s\"\n", argv[1]);
-                        exit(127);
+                        myUid = getuid();
                   }
-                  myUid = pwdReq->pw_uid;
+                  else
+                  {
+                          struct passwd *pwdReq;
+                          pwdReq = getpwnam(argv[1]);
+                          if(pwdReq == NULL)
+                          {
+                                fprintf(stderr, "Cannot resolve username: \"%s\"\n", argv[1]);
+                                exit(127);
+                          }
+                          myUid = pwdReq->pw_uid;
+                  }
           }
-          else
-          {
-                  fprintf(stderr, "Too many arguments.\n");
-                  exit(127);
-          }
+          #define NUM_ARGS_SEARCH 3
+          #define NON_SEARCH_ARGS 2
+        #else
+          #define NUM_ARGS_SEARCH 2
+          #define NON_SEARCH_ARGS 1
         #endif
-              
+   
+        if(argc >= NUM_ARGS_SEARCH)
+        {
+                unsigned int lastSlot = argc - NON_SEARCH_ARGS;
+                unsigned int searchI = 0;
+                searchItems = malloc(sizeof(char*) * (lastSlot + 1));
+                memcpy(searchItems, &argv[NON_SEARCH_ARGS], lastSlot * sizeof(char*));
+                searchItems[lastSlot] = NULL;
+        }
+
         myUidStr = malloc(8);
         myPidStr = malloc(8);
         myPid = getpid();

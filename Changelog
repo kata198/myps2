@@ -1,3 +1,18 @@
+* Fri May 8 00:12:00 EDT 2015 Tim Savannah <kata198@gmail.com>
+- Add alias to myps2 "other user" argument (first arg) of "." to resolve
+to local user. Example "myps2" and "myps2 ." are equivlant.
+- Add built-in searching to all of the myps2 and ps2 variants. Each
+additional argument that is present specifies an AND filter for that
+string to be present.
+    
+      Examples:
+        ps2 gcc myproject # This will return any commandline by any user
+                          # which contains both "gcc" and "myproject"
+    
+        myps2 . firefox   # Show all processes owned by me which contain
+                          # "firefox" in the cmdline string
+
+
 * Thu Apr 30 01:11:36 EDT 2015 Tim Savannah <kata198@gmail.com>
 - Relase version 2.0. All below 
 - Add support for viewing threads. This is accomplished by the "t"

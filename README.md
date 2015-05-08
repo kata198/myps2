@@ -11,6 +11,8 @@ When showing threads, it draws a tree relating them to the parent process (ps ca
 
 The output is VERY CLEAN and easilly parsed. For 99% of the usage of ps in the real-world, this displays all the info you need, quicker, simpler, and without looking up many flags.
 
+It is also annoying to constantly have to type "| grep" over and over, and inefficent to feed to another program what one can do. Any additional arguments to these programs will filter based on the commandline string containing those items.
+
 
 Performance
 ===========
@@ -25,7 +27,7 @@ There are two major variants, and several minor variants.
 The two majors are "myps2" and "ps2".
 
 *ps2* - Shows processes by all users
-*myps2* - Shows processes by current user (with no args), or single arg for another username.
+*myps2* - Shows processes by current user (with no args), or single arg for another username. Use "." as an alias for current user (useful for quick searching, e.x. "myps . firefox")
 
 ps2's output contains an additional second column of the username associated with the process.
 
@@ -45,7 +47,7 @@ myps2\_cmdonly, ps2\_cmdonly - Show only the command name, no arguments. This ca
 Example
 =======
 
-	[media@silverslave myps2]$ mypst2_quoted root
+	[media@silverslave myps2]$ mypst2\_quoted root
 	1        /sbin/init
 	6        /usr/lib/systemd/systemd-journald
 	7        /usr/lib/systemd/systemd-udevd
@@ -71,6 +73,17 @@ Example
 		726        Thread [2] ( /usr/lib/udisks2/udisksd )
 		730        Thread [3] ( /usr/lib/udisks2/udisksd )
 		737        Thread [4] ( /usr/lib/udisks2/udisksd )
+
+Filtering
+=========
+
+Add additional arguments to incorporate them as filters.
+
+Examples:
+
+  ps2 gcc myproject  # This will print any process by any user which contains "gcc" and "myproject" in its commandline string.
+
+  myps2 . firefox    # This will print all processes by current user which contain "firefox" in the commandline string.
 
 
 
