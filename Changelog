@@ -1,3 +1,6 @@
+* Thu May 21 02:02:00 EDT 2015 Tim Savannah <kata198@gmail.com>
+- Add cygwin build/install/makefile and default to -D NO_GLIB
+
 * Fri May 8 00:12:00 EDT 2015 Tim Savannah <kata198@gmail.com>
 - Add alias to myps2 "other user" argument (first arg) of "." to resolve
 to local user. Example "myps2" and "myps2 ." are equivlant.
