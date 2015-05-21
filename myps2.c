@@ -53,7 +53,7 @@ unsigned int myUidStrLen;
 unsigned int myUid;
 
 volatile const char *author = "Created by Tim Savannah <kata198@gmail.com>. I love you all so much.";
-volatile const char *version = "2.0";
+volatile const char *version = "3.1";
 
 static char **searchItems = NULL;
 
