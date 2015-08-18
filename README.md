@@ -26,11 +26,11 @@ There are  three major variants, and several minor variants.
 
 The three majors are "myps2", "yourps2", and "ps2".
 
-_ps2_ - Shows processes by all users. All args provide search.
+**ps2** - Shows processes by all users. All args provide search.
 
-_yourps2_ - Shows processes by another user. Second arg is username of other user, additional args provide search.
+**yourps2** - Shows processes by another user. Second arg is username of other user, additional args provide search.
 
-_myps2_ - Shows processes by current user. All args provide search
+**myps2** - Shows processes by current user. All args provide search
 
 
 ps2's output contains an additional second column of the username associated with the process.
