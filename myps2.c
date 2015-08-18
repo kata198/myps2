@@ -48,12 +48,15 @@
 // This is extra size to account for null terminators and command name in addition to the longest argv possible. If you need to use this on a system without a lot of memory for some reason, adjust this to a smaller value and define ARG_MAX to be something smaller.
 #define EXTRA_ARG_BUFFER 2000
 
+#ifndef ALL_PROCS
 char *myUidStr;
 unsigned int myUidStrLen;
 unsigned int myUid;
+#endif
+
 
 volatile const char *author = "Created by Tim Savannah <kata198@gmail.com>. I love you all so much.";
-volatile const char *version = "3.1";
+volatile const char *version = "4.0";
 
 static char **searchItems = NULL;
 
@@ -111,59 +114,6 @@ char *strnstr(char *haystack, char *needle, unsigned int len)
   }
 #endif
 
-#if 0
-  unsigned int getProcessOwner(char *pidStr)
-  {
-          FILE *statusFile;
-          static char *statusFilename = NULL;
-          static char *buffer = NULL;
-  
-          if(statusFilename == NULL)
-          {
-                  statusFilename = malloc(32);
-                  buffer = malloc(256);
-          }
-          
-          sprintf(statusFilename, "/proc/%s/status", pidStr);
-          statusFile = fopen(statusFilename, "r");
-          if(!statusFile)
-                  return 65535;
-  
-          fread(buffer, 1, 256, statusFile);
-  
-          fclose(statusFile);
-  
-          register char *uidPortion;
-          register unsigned int i;
-  
-          uidPortion = strstr(buffer, "\nUid:\t")+6;
-  
-          #ifndef ALL_PROCS
-          // Optimization if we are only doing myps, we can check str here.
-          if(uidPortion[myUidStrLen] != '\t')
-                  return 65535;
-  
-  
-          for(i=0; i < myUidStrLen; i++)
-          {
-                  if (myUidStr[i]        != uidPortion[i])
-                          return 65535;
-          }
-          return myUid;
-          #else
-          // Here we actually need to care about the real return
-          
-          for(i=0; uidPortion[i] != '\t'; i++);
-  
-          uidPortion[i] = '\0';
-          return atoi(uidPortion);
-          #endif
-  }
-#endif
-/* Super optimization: The majority of execution time was the above function
- * Turns out we can just stat the process director. 
- * The owner of the proc directory is process owner.
- */
 unsigned int getProcessOwner(char *pidStr)
 {
         static struct stat info;
@@ -280,7 +230,6 @@ void printCmdLineStr(char *pidStr
                   pwName = pwinfo->pw_name;
           #endif
 
-
           printf("%8s %10s\t%s", pidStr, pwName, buffer);
         #else
           printf("%8s\t%s", pidStr, buffer);
@@ -337,7 +286,7 @@ void printCmdLineStr(char *pidStr
                   sprintf(parentDir, "/proc/%s/task", pidStr);
 
                   taskDir = opendir(parentDir);
-                  while( dirInfo = readdir(taskDir) )
+                  while( (dirInfo = readdir(taskDir)) )
                   {
                           threadPid = dirInfo->d_name;
                           if(!isdigit(threadPid[0]) || strcmp(threadPid, pidStr) == 0)
@@ -387,30 +336,31 @@ int main(int argc, char* argv[])
         struct dirent *dirInfo;
 
         #ifndef ALL_PROCS
-          if(argc == 1)
-          {
-                  myUid = getuid();
-          }
-          else if(argc >= 2)
-          {
-                  if(argv[1][0] == '.' && argv[1][1] == '\0')
-                  {
-                        myUid = getuid();
-                  }
-                  else
-                  {
-                          struct passwd *pwdReq;
-                          pwdReq = getpwnam(argv[1]);
-                          if(pwdReq == NULL)
-                          {
-                                fprintf(stderr, "Cannot resolve username: \"%s\"\n", argv[1]);
-                                exit(127);
-                          }
-                          myUid = pwdReq->pw_uid;
-                  }
-          }
-          #define NUM_ARGS_SEARCH 3
-          #define NON_SEARCH_ARGS 2
+          #ifdef OTHER_USER_PROCS
+            if(argc == 1)
+            {
+                fprintf(stderr, "You must provide another username.\n");
+                exit(127);
+            }
+            else if(argc >= 2)
+            {
+                    struct passwd *pwdReq;
+                    pwdReq = getpwnam(argv[1]);
+                    if(pwdReq == NULL)
+                    {
+                          fprintf(stderr, "Cannot resolve username: \"%s\"\n", argv[1]);
+                          exit(127);
+                    }
+                    myUid = pwdReq->pw_uid;
+            }
+            #define NUM_ARGS_SEARCH 3
+            #define NON_SEARCH_ARGS 2
+          #else
+            myUid = getuid();
+            #define NUM_ARGS_SEARCH 2
+            #define NON_SEARCH_ARGS 1
+          #endif
+          
         #else
           #define NUM_ARGS_SEARCH 2
           #define NON_SEARCH_ARGS 1
@@ -425,13 +375,16 @@ int main(int argc, char* argv[])
                 searchItems[lastSlot] = NULL;
         }
 
+        #ifndef ALL_PROCS
         myUidStr = malloc(8);
+        sprintf(myUidStr, "%u", myUid);
+        myUidStrLen = strlen(myUidStr);
+        #endif
+
         myPidStr = malloc(8);
         myPid = getpid();
 
-        sprintf(myUidStr, "%u", myUid);
         sprintf(myPidStr, "%u", myPid);
-        myUidStrLen = strlen(myUidStr);
         #ifdef ALL_PROCS
           #ifndef NO_GLIB
             pwdInfo = g_hash_table_new(NULL, NULL);
@@ -457,6 +410,7 @@ int main(int argc, char* argv[])
                 #endif
                 );
         }
+        return 0;
 
 }
 

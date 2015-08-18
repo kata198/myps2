@@ -1,3 +1,7 @@
+* Tue Aug 18 2015 Tim Savannah <kata198@gmail.com>
+- Remove annoying "myps2 ." crap. myps2 always now goes to current user.
+- Add "yourps2 [username] (optional: search args)" for searching the processes filtering by other usernames
+
 * Thu May 21 02:02:00 EDT 2015 Tim Savannah <kata198@gmail.com>
 - Add cygwin build/install/makefile and default to -D NO_GLIB
 

@@ -26,8 +26,9 @@ There are two major variants, and several minor variants.
 
 The two majors are "myps2" and "ps2".
 
-*ps2* - Shows processes by all users
-*myps2* - Shows processes by current user (with no args), or single arg for another username. Use "." as an alias for current user (useful for quick searching, e.x. "myps . firefox")
+*ps2* - Shows processes by all users. All args provide search.
+*yourps2* - Shows processes by another user. Second arg is username of other user, additional args provide search.
+*myps2* - Shows processes by current user. All args provide search
 
 ps2's output contains an additional second column of the username associated with the process.
 
@@ -35,13 +36,13 @@ ps2 and myps2 only show processes. To also show threads, use "pst2" or "mypst2",
 
 Both applications support representing the max argument length on the system.
 
-myps2, ps2 - All processes
+myps2, ps2, yourps2 - All processes
 
-mypst2, pst2 - All processes and threads
+mypst2, pst2, yourps2 - All processes and threads
 
-myps2\_quoted, ps2\_quoted - These group each argument to the programs with quotes around them. These applications I find very useful with applications that have string arguments that may contain spaces (like a comment field).
+myps2\_quoted, ps2\_quoted, yourps2\_quoted - These group each argument to the programs with quotes around them. These applications I find very useful with applications that have string arguments that may contain spaces (like a comment field).
 
-myps2\_cmdonly, ps2\_cmdonly - Show only the command name, no arguments. This can be useful for use with other applications that only use the command name, like killall and pidof.
+myps2\_cmdonly, ps2\_cmdonly yourps2\_cmdonly - Show only the command name, no arguments. This can be useful for use with other applications that only use the command name, like killall and pidof.
 
 
 Example
@@ -83,7 +84,9 @@ Examples:
 
   ps2 gcc myproject  # This will print any process by any user which contains "gcc" and "myproject" in its commandline string.
 
-  myps2 . firefox    # This will print all processes by current user which contain "firefox" in the commandline string.
+  myps2 firefox    # This will print all processes by current user which contain "firefox" in the commandline string.
+
+  yourps2 root vim  # This will print all processes running as user "root" which contain "vim" in the commandline string.
 
 
 

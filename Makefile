@@ -11,6 +11,13 @@ all: \
 	bindir/mypst2 \
 	bindir/mypst2_cmdonly \
 	bindir/mypst2_quoted \
+	bindir/yourps2 \
+	bindir/yourps2_cmdonly \
+	bindir/yourps2_quoted \
+	bindir/yourpst2 \
+	bindir/yourpst2_cmdonly \
+	bindir/yourpst2_quoted \
+	bindir/ps2 \
 	bindir/ps2 \
 	bindir/ps2_cmdonly \
 	bindir/ps2_quoted \
@@ -36,6 +43,26 @@ bindir/mypst2_cmdonly: myps2.c
 
 bindir/mypst2_quoted: myps2.c
 	gcc ${CFLAGS} -D QUOTE_ARGS -D SHOW_THREADS myps2.c -o bindir/mypst2_quoted
+
+
+bindir/yourps2: myps2.c
+	gcc ${CFLAGS} -D OTHER_USER_PROCS myps2.c -o bindir/yourps2
+
+bindir/yourps2_cmdonly: myps2.c
+	gcc ${CFLAGS} -D OTHER_USER_PROCS -D CMD_ONLY myps2.c -o bindir/yourps2_cmdonly
+
+bindir/yourps2_quoted: myps2.c
+	gcc ${CFLAGS} -D OTHER_USER_PROCS -D QUOTE_ARGS myps2.c -o bindir/yourps2_quoted
+
+bindir/yourpst2: myps2.c
+	gcc ${CFLAGS} -D OTHER_USER_PROCS myps2.c -D SHOW_THREADS -o bindir/yourpst2
+
+bindir/yourpst2_cmdonly: myps2.c
+	gcc ${CFLAGS} -D OTHER_USER_PROCS -D CMD_ONLY -D SHOW_THREADS myps2.c -o bindir/yourpst2_cmdonly
+
+bindir/yourpst2_quoted: myps2.c
+	gcc ${CFLAGS} -D OTHER_USER_PROCS -D QUOTE_ARGS -D SHOW_THREADS myps2.c -o bindir/yourpst2_quoted
+
 
 bindir/ps2: myps2.c
 	gcc ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS myps2.c -o bindir/ps2
