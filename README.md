@@ -4,10 +4,10 @@ Intent
 
 To create very fast and specialized alternates to the standard ps command.
 
-Each operation is a different command for maximum speed (direct codepath instead of conditional). No Arguments. Except myps, one optional argument of username to show.
+Each operation is a different command for maximum speed and simplicity.  All commands take an optional list of strings, filtering the results to commands containing those strings (much better than \| grep X \| grep Y ...)
 
 It supports showing processes only, or threads and processes.
-When showing threads, it draws a tree relating them to the parent process (ps cannot do --forest with -H).
+When showing threads, it draws a tree relating them to the parent process.
 
 The output is VERY CLEAN and easilly parsed. For 99% of the usage of ps in the real-world, this displays all the info you need, quicker, simpler, and without looking up many flags.
 
@@ -22,9 +22,9 @@ Performance is amazing. On my personal machine, using the latest version, "myps"
 Applications
 ============
 
-There are two major variants, and several minor variants.
+There are  three major variants, and several minor variants.
 
-The two majors are "myps2" and "ps2".
+The three majors are "myps2", "yourps2", and "ps2".
 
 *ps2* - Shows processes by all users. All args provide search.
 *yourps2* - Shows processes by another user. Second arg is username of other user, additional args provide search.
