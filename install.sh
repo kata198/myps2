@@ -16,7 +16,13 @@ export TARGETS="bindir/myps2 \
 	bindir/ps2_quoted \
 	bindir/pst2 \
 	bindir/pst2_cmdonly \
-	bindir/pst2_quoted"
+	bindir/pst2_quoted
+	bindir/yourps2 \
+	bindir/yourps2_cmdonly \
+	bindir/yourps2_quoted \
+	bindir/yourpst2 \
+	bindir/yourpst2_cmdonly \
+	bindir/yourpst2_quoted"
 
 make all || ./build.sh;
 

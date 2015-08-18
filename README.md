@@ -105,10 +105,6 @@ INSTALLATION
 
 Use make && make install
 
-or
-./build.sh
-./install.sh
-
 
 If DESTDIR environment variable is present, it will try to install to that directory. Otherwise, if /usr/bin is writeable, it will install there, else it will install in ~/bin
 
