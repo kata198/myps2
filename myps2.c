@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Tim Savannah <kata198@gmail.com> under GPLv3.
+ * Copyright (c) 2015, 2016 Tim Savannah <kata198@gmail.com> under GPLv3.
  * See LICENSE file for more information.
  *
  *
@@ -56,7 +56,7 @@ unsigned int myUid;
 
 
 volatile const char *author = "Created by Tim Savannah <kata198@gmail.com>. I love you all so much.";
-volatile const char *version = "4.0";
+volatile const char *version = "5.0";
 
 static char **searchItems = NULL;
 
@@ -77,6 +77,9 @@ char *strnstr(char *haystack, char *needle, unsigned int len)
                 if(needle[j] != haystack[i])
                     break;
             }
+            /* Check if we are matching on the end of both */
+            if(i == len && needle[j] == '\0' && haystack[i] == '\0')
+                return ret;
          }
     }
     return NULL;

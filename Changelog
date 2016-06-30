@@ -1,3 +1,6 @@
+* Thu Jun 30 2016 Tim Savannah <kata198@gmail.com>
+- Fix where a match would not occur in some circumstances if the final character of both search term and cmdline are a match
+
 * Tue Aug 18 2015 Tim Savannah <kata198@gmail.com>
 - Remove annoying "myps2 ." crap. myps2 always now goes to current user.
 - Add "yourps2 [username] (optional: search args)" for searching the processes filtering by other usernames
