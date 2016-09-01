@@ -1,3 +1,9 @@
+* Sep 1 2016 Tiom Savannah <kata198@gmail.com>
+- Release 6.0 - supporting the "2r" variants (i.e. append "r" after the 2 in
+any of the commands). This version attempts to resolve the REAL executable
+(not first element of cmdline, aka argv[0]) and replaces it in the output
+where possible.
+
 * Thu Jun 30 2016 Tim Savannah <kata198@gmail.com>
 - Fix where a match would not occur in some circumstances if the final character of both search term and cmdline are a match
 

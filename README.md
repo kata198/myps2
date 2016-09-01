@@ -48,6 +48,11 @@ myps2\_quoted, ps2\_quoted, yourps2\_quoted - These group each argument to the p
 myps2\_cmdonly, ps2\_cmdonly yourps2\_cmdonly - Show only the command name, no arguments. This can be useful for use with other applications that only use the command name, like killall and pidof.
 
 
+Adding an "r" after the "2" of any command will resolve the full executable name (rather than argv[0]) and report that in the output instead. For example, instead of seeing "bash" you'd see "/usr/bin/bash" or wherever the actual executable lives. If permission is denied (like viewing the actual executable for a process other than your own, when you are not root), ps2 will fallback to the argv[0] (cmdline) reported value.
+
+Examples: ps2r mypst2r ps2r\_cmdonly
+
+
 Example
 =======
 

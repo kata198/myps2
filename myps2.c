@@ -4,7 +4,7 @@
  *
  *
  * Code Style:
- * vim: ts=8:sw=8:expandtab
+ * vim: ts=8:sw=8:st=8:expandtab
  * two-space indents between preprocessor conditionals. All binaries come from mutations on this one file. bwahahaha!!
  */
 
@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <pwd.h>
+#include <errno.h>
 
 
 #if defined(__CYGWIN__)
@@ -45,6 +46,10 @@
   #define ARG_MAX 65535
 #endif
 
+#ifndef PATH_MAX
+  #define PATH_MAX 4096
+#endif
+
 // This is extra size to account for null terminators and command name in addition to the longest argv possible. If you need to use this on a system without a lot of memory for some reason, adjust this to a smaller value and define ARG_MAX to be something smaller.
 #define EXTRA_ARG_BUFFER 2000
 
@@ -56,7 +61,7 @@ unsigned int myUid;
 
 
 volatile const char *author = "Created by Tim Savannah <kata198@gmail.com>. I love you all so much.";
-volatile const char *version = "5.0";
+volatile const char *version = "6.0";
 
 static char **searchItems = NULL;
 
@@ -135,6 +140,30 @@ unsigned int getProcessOwner(char *pidStr)
         return info.st_uid;
 }
 
+#ifdef REPLACE_EXE_NAME
+char *getCommandName(char* pidStr)
+{
+        static char ret[PATH_MAX];
+        static char exeFilePath[128];
+
+        ssize_t len;
+
+        sprintf(exeFilePath, "/proc/%s/exe", pidStr);
+
+        len = readlink(exeFilePath, ret, PATH_MAX);
+        if ( len == -1 )
+        {
+                if ( errno == EACCES )
+                        return (char *)-EACCES;
+                return NULL;
+        }
+
+        ret[len] = '\0';
+
+        return ret;
+}
+#endif
+
 
 void printCmdLineStr(char *pidStr 
 #ifdef ALL_PROCS
@@ -148,6 +177,7 @@ void printCmdLineStr(char *pidStr
         FILE *cmdlineFile;
         static char cmdlineFilename[128];
         static char *buffer = NULL;
+        char *cmdName;
 
         unsigned int bufferLen = 0;
         #ifdef QUOTE_ARGS
@@ -187,19 +217,30 @@ void printCmdLineStr(char *pidStr
                 return; // No cmdline, kthread and the like
 
         buffer[bufferLen] = '\0';
+
+        #ifndef REPLACE_EXE_NAME
+          cmdName = buffer;
+        #else
+          cmdName = getCommandName(pidStr);
+          if(cmdName == NULL)
+                return; // exe is gone, proc must have died.
+          else if (cmdName == (char*)-EACCES)
+                cmdName = buffer; // Permission denied to readlink, so retain reported name via cmdline
+        #endif
+
         //printf("searchITem is: %s\n", searchItem);
         //printf("buffer is: %s\n", buffer);
         if(searchItems != NULL)
         {
                 unsigned int searchI = 0;
                 #ifdef CMD_ONLY
-                  unsigned int cmdNameLen = strlen(buffer);
+                  unsigned int cmdNameLen = strlen(cmdName);
                 #endif
                 while(searchItems[searchI] != NULL)
                 {
                         #ifdef CMD_ONLY
                           // Command only we want the first arg only
-                          if(strnstr(buffer, searchItems[searchI], cmdNameLen) == NULL)
+                          if(strnstr(cmdName, searchItems[searchI], cmdNameLen) == NULL)
                                   return;
                         #else
                           if(strnstr(buffer, searchItems[searchI], bufferLen) == NULL)
@@ -233,9 +274,9 @@ void printCmdLineStr(char *pidStr
                   pwName = pwinfo->pw_name;
           #endif
 
-          printf("%8s %10s\t%s", pidStr, pwName, buffer);
+          printf("%8s %10s\t%s", pidStr, pwName, cmdName);
         #else
-          printf("%8s\t%s", pidStr, buffer);
+          printf("%8s\t%s", pidStr, cmdName);
         #endif
 
         #ifdef CMD_ONLY
@@ -302,7 +343,7 @@ void printCmdLineStr(char *pidStr
                             }
                             hadThread = 1;
                           #endif
-                          printf("\t%8s\tThread [%2u] ( %s )\n", threadPid, descended, buffer);
+                          printf("\t%8s\tThread [%2u] ( %s )\n", threadPid, descended, cmdName);
 
                           #ifdef THREADS_USE_TREE
                             descended++;
