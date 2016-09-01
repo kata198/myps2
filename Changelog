@@ -1,4 +1,4 @@
-* Sep 1 2016 Tiom Savannah <kata198@gmail.com>
+* Sep 1 2016 Tim Savannah <kata198@gmail.com>
 - Release 6.0 - supporting the "2r" variants (i.e. append "r" after the 2 in
 any of the commands). This version attempts to resolve the REAL executable
 (not first element of cmdline, aka argv[0]) and replaces it in the output
