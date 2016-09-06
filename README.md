@@ -48,6 +48,9 @@ myps2\_quoted, ps2\_quoted, yourps2\_quoted - These group each argument to the p
 myps2\_cmdonly, ps2\_cmdonly yourps2\_cmdonly - Show only the command name, no arguments. This can be useful for use with other applications that only use the command name, like killall and pidof.
 
 
+Showing Real Paths of Executables
+---------------------------------
+
 Adding an "r" after the "2" of any command will resolve the full executable name (rather than argv[0]) and report that in the output instead. For example, instead of seeing "bash" you'd see "/usr/bin/bash" or wherever the actual executable lives. If permission is denied (like viewing the actual executable for a process other than your own, when you are not root), ps2 will fallback to the argv[0] (cmdline) reported value.
 
 Examples: ps2r mypst2r ps2r\_cmdonly
@@ -101,9 +104,7 @@ Examples:
 Dependencies
 ============
 
-The only dependency is glib-2.0 for the ps2\* variants. If your system does not have glib-2.0 or does not have glib-2.0-devel package installed, you will get a warning and the code will be compiled using an alternate, much less efficient codepath.
-With my testcases, the presence of glib-2.0 (used for hashmap impl) cuts runtime of ps2 by 2/3. (940 entries in 100ms vs 30ms)
-
+Has no external dependencies than libc. Former glib-2.0 dependencies have been replaced by specific optimization functions.
 
 INSTALLATION
 ============
@@ -112,8 +113,6 @@ Use make && make install
 
 
 If DESTDIR environment variable is present, it will try to install to that directory. Otherwise, if /usr/bin is writeable, it will install there, else it will install in ~/bin
-
-If you are building for cygwin, the glib-2.0 libs seem messed up (maybe just on my install). Uncomment the #define NO\_GLIB line at the top of myps2.c to work around this.
 
 
 Cygwin
