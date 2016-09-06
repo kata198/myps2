@@ -8,6 +8,8 @@
  * two-space indents between preprocessor conditionals. All binaries come from mutations on this one file. bwahahaha!!
  */
 
+/* vim: set ts=8 sw=8 st=8 expandtab : */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,20 +23,120 @@
 #include <errno.h>
 
 
-#if defined(__CYGWIN__)
-  #warning cygwin detected, if you get failures to link below for g_hash whatever, add -D NO_GLIB to the CFLAGS in the Makefile.
-#endif
-
-// Uncomment this line to build without glib.
-//#define NO_GLIB
-
 #ifdef ALL_PROCS
-  #ifndef NO_GLIB
-    #include <glib.h>
-    GHashTable *pwdInfo;
-  #else
-    #warning COMPILING WITHOUT GLIB SUPPORT. ps* variants will be slower
-  #endif
+
+        /* Optimization IMPL:
+ *
+ *              Special Linked lists, tuned to the application of looking up uint (uid) -> char* (username)
+ *
+ *              Broken up into 10 linked lists, one for each ending digit of the uid. This prevents systems running many users
+ *              from having long chains of lookups.
+ *
+ *              Since procs with children tend to have close pids, we keep track of the index of a "hot" last key (lastMatch/lastMatchKey).
+ *               On a test system with many users, this had a 60% hit rate.
+ */
+
+
+        /* The number of linked lists, set this to 0 to disable last-digit hashing */
+        #define LL_NUM_LISTS 10
+
+
+        /* First element of empty list has "next" set to (void *1), which is a cheap check, and prevents additional assignments */
+        #define _EMPTY_LL_MARKER (void *)1
+        #define IS_EMPTY_LL(myll) myll->next == _EMPTY_LL_MARKER
+
+        typedef struct {
+                unsigned int key;
+                char *value;
+                void *next;
+        }Myps2LinkedList;
+
+
+        /* pwdInfo - The root pointer to LL_NUM_LISTS linked lists */
+        static Myps2LinkedList *pwdInfo;
+        /* lastMatch - The linked list value that is the current "hot" (last) match */
+        static Myps2LinkedList *lastMatch;
+        /* lastMatchKey - The last key to match, saves a load in "hot test" */
+        static unsigned int lastMatchKey;
+
+        /* linked_list_new - Create the root lists */
+        Myps2LinkedList *linked_list_new() 
+        {
+                Myps2LinkedList *ret;
+                unsigned int i;
+
+                ret = malloc(sizeof(Myps2LinkedList) * LL_NUM_LISTS);
+                #if LL_NUM_LISTS > 0
+                for(i=0; i < LL_NUM_LISTS; i++)
+                {
+                        ret[i].next = _EMPTY_LL_MARKER;
+                }
+                #endif
+
+                return ret;
+        }
+
+        char *linked_list_search(Myps2LinkedList *ll, unsigned int searchKey)
+        {
+                if ( lastMatchKey == searchKey && lastMatch != NULL )
+                {
+                        return lastMatch->value;
+                }
+
+                #if LL_NUM_LISTS > 0
+                ll = &ll[searchKey % LL_NUM_LISTS];
+                #endif
+
+                if ( IS_EMPTY_LL(ll) )
+                {
+                        /* Special case -- linked list has no values */
+                        return NULL;
+                }
+
+                do
+                {
+                        if ( ll->key == searchKey )
+                        {
+                                lastMatch = ll;
+                                lastMatchKey = searchKey;
+                                return ll->value;
+                        }                        
+                        ll = ll->next;
+                }while(ll != NULL);
+                
+                return NULL;
+        }
+
+        void linked_list_insert(Myps2LinkedList *ll, unsigned int insertKey, char *insertValue)
+        {
+                #if LL_NUM_LISTS > 0
+                ll = &ll[insertKey % LL_NUM_LISTS];
+                #endif
+
+                if( IS_EMPTY_LL(ll) )
+                {
+                        /* Special case -- linked list has no values yet */
+                        ll->key = insertKey;
+                        ll->value = insertValue;
+                        ll->next = NULL;
+                        return;
+                }
+
+                /* Move to next link which has no "next" chain */
+                while(ll->next != NULL)
+                {
+                        ll = (Myps2LinkedList *)ll->next;
+                }
+
+                /* Allocate and assign the next chain */
+                ll->next = malloc(sizeof(Myps2LinkedList));
+                ll = (Myps2LinkedList *)ll->next;
+
+                ll->key = insertKey;
+                ll->value = insertValue;
+                ll->next = NULL;
+        }
+
 #endif
 
 #ifdef _LINUX_LIMITS_H
@@ -61,7 +163,7 @@ unsigned int myUid;
 
 
 volatile const char *author = "Created by Tim Savannah <kata198@gmail.com>. I love you all so much.";
-volatile const char *version = "6.0";
+volatile const char *version = "7.0";
 
 static char **searchItems = NULL;
 
@@ -257,22 +359,17 @@ void printCmdLineStr(char *pidStr
         #endif
 
         #ifdef ALL_PROCS
-          #ifndef NO_GLIB
-            pwName = g_hash_table_lookup(pwdInfo, GINT_TO_POINTER(ownerUid));
-            if(pwName == NULL)
-            {
-          #endif
+            pwName = linked_list_search(pwdInfo, ownerUid);
+
+          if(pwName == NULL)
+          {
                   struct passwd *pwinfo = getpwuid(ownerUid);
                   if(pwinfo == NULL)
                           return; // No longer active process
-          #ifndef NO_GLIB
                   pwName = malloc(strlen(pwinfo->pw_name)+1);
                   strcpy(pwName, pwinfo->pw_name);
-                  g_hash_table_insert(pwdInfo, GINT_TO_POINTER(ownerUid), pwName);
+                  linked_list_insert(pwdInfo, ownerUid, pwName);
           }
-          #else
-                  pwName = pwinfo->pw_name;
-          #endif
 
           printf("%8s %10s\t%s", pidStr, pwName, cmdName);
         #else
@@ -430,9 +527,8 @@ int main(int argc, char* argv[])
 
         sprintf(myPidStr, "%u", myPid);
         #ifdef ALL_PROCS
-          #ifndef NO_GLIB
-            pwdInfo = g_hash_table_new(NULL, NULL);
-          #endif
+            pwdInfo = linked_list_new();
+            lastMatch = NULL;
         #endif
 
         procDir = opendir("/proc");
