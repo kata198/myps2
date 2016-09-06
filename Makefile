@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-CFLAGS=-O3 -mtune=native -L/lib64 -fno-use-linker-plugin
+CFLAGS=-O3 -mtune=native -L/lib64
 EXTRA_ALL_PROCS_FLAGS=
 CC ?= gcc
 
