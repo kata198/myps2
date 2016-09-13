@@ -183,7 +183,7 @@
 
 
 volatile const char *author = "Created by Tim Savannah <kata198@gmail.com>. I love you all so much.";
-volatile const char *version = "7.0";
+volatile const char *version = "7.1";
 
 static char **searchItems = NULL;
 
