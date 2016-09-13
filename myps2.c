@@ -37,8 +37,14 @@
  */
 
 
-        /* The number of linked lists, set this to 0 to disable last-digit hashing */
-        #define LL_NUM_LISTS 10
+        /* The number of linked lists, set this to 1 to disable last-digit hashing */
+        #ifndef LL_NUM_LISTS
+          #define LL_NUM_LISTS 10
+        #endif
+
+        #if LL_NUM_LISTS < 1
+          #error "LL_NUM_LISTS MUST BE >= 1"
+        #endif
 
 
         /* First element of empty list has "next" set to (void *1), which is a cheap check, and prevents additional assignments */
@@ -66,12 +72,10 @@
                 unsigned int i;
 
                 ret = malloc(sizeof(Myps2LinkedList) * LL_NUM_LISTS);
-                #if LL_NUM_LISTS > 0
                 for(i=0; i < LL_NUM_LISTS; i++)
                 {
                         ret[i].next = _EMPTY_LL_MARKER;
                 }
-                #endif
 
                 return ret;
         }
@@ -83,7 +87,7 @@
                         return lastMatch->value;
                 }
 
-                #if LL_NUM_LISTS > 0
+                #if LL_NUM_LISTS > 1
                 ll = &ll[searchKey % LL_NUM_LISTS];
                 #endif
 
@@ -109,7 +113,7 @@
 
         void linked_list_insert(Myps2LinkedList *ll, unsigned int insertKey, char *insertValue)
         {
-                #if LL_NUM_LISTS > 0
+                #if LL_NUM_LISTS > 1
                 ll = &ll[insertKey % LL_NUM_LISTS];
                 #endif
 
