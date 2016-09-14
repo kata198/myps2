@@ -29,6 +29,9 @@
 #include <dirent.h>
 #include <pwd.h>
 #include <errno.h>
+#include <stdarg.h>
+
+#include <sys/mman.h>
 
 /* Maximum length of a /proc/PID/item path, with plenty of room to spare.
  *   Double if going into deep subdirs.
@@ -44,6 +47,37 @@
   #define unlikely(x) x
   #define __hot
 #endif
+
+/* INSIST_USED - Silence "possibly unused" warnings */
+#define INSIST_USED(x) (void)(x)
+
+
+#ifdef _LINUX_LIMITS_H
+  #undef _LINUX_LIMITS_H
+  #include <linux/limits.h>
+#endif
+
+#ifndef ARG_MAX
+  #define ARG_MAX 65535
+#endif
+
+#ifndef PATH_MAX
+  #define PATH_MAX 4096
+#endif
+
+// This is extra size to account for null terminators and command name in addition to the longest argv possible. If you need to use this on a system without a lot of memory for some reason, adjust this to a smaller value and define ARG_MAX to be something smaller.
+#define EXTRA_ARG_BUFFER 2000
+
+#if !defined(NO_OUTPUT_BUFFER) && ( !defined(OUTPUT_BUFFER_SIZE) || OUTPUT_BUFFER_SIZE > 0)
+  #ifndef OUTPUT_BUFFER_SIZE
+    #define OUTPUT_BUFFER_SIZE ARG_MAX * 5 + 1
+  #endif
+#endif
+
+volatile const char *author = "Created by Tim Savannah <kata198@gmail.com>. I love you all so much.";
+volatile const char *version = "7.1";
+
+static char **searchItems = NULL;
 
 #ifdef ALL_PROCS
 
@@ -167,28 +201,6 @@
 
 #endif
 
-#ifdef _LINUX_LIMITS_H
-  #undef _LINUX_LIMITS_H
-  #include <linux/limits.h>
-#endif
-
-#ifndef ARG_MAX
-  #define ARG_MAX 65535
-#endif
-
-#ifndef PATH_MAX
-  #define PATH_MAX 4096
-#endif
-
-// This is extra size to account for null terminators and command name in addition to the longest argv possible. If you need to use this on a system without a lot of memory for some reason, adjust this to a smaller value and define ARG_MAX to be something smaller.
-#define EXTRA_ARG_BUFFER 2000
-
-
-
-volatile const char *author = "Created by Tim Savannah <kata198@gmail.com>. I love you all so much.";
-volatile const char *version = "7.1";
-
-static char **searchItems = NULL;
 
 char *strnstr(char *haystack, char *needle, unsigned int len)
 {
@@ -401,7 +413,6 @@ __hot void printCmdLineStr(char *pidStr
           if (parentPidStr != NULL)
                   putchar('\t');
         #endif
-
         #ifdef ALL_PROCS
           pwName = linked_list_search(pwdInfo, ownerUid);
 
@@ -559,6 +570,26 @@ int main(int argc, char* argv[])
                 searchItems[lastSlot] = NULL;
         }
 
+
+        #ifndef NO_OUTPUT_BUFFER
+          char *outputBuffer;
+          int zeroFD;
+          zeroFD = open("/dev/zero", O_RDONLY);
+          if ( likely( zeroFD > 0 ) )
+          {
+                outputBuffer = mmap(0, OUTPUT_BUFFER_SIZE + 1, PROT_READ | PROT_WRITE, MAP_PRIVATE, zeroFD, 0);
+                if ( unlikely( outputBuffer == MAP_FAILED ) )
+                {
+                        close(zeroFD);
+                        zeroFD = -1;
+                }
+                else
+                {
+                        setvbuf(stdout, outputBuffer, _IOFBF, OUTPUT_BUFFER_SIZE);
+                }
+          }
+        #endif
+
         myPidStr = malloc(8);
         myPid = getpid();
 
@@ -587,10 +618,29 @@ int main(int argc, char* argv[])
                 #endif
                 );
         }
+        fflush(stdout);
+
         free(procDir);
         free(myPidStr);
         if(searchItems != NULL)
+        {
             free(searchItems);
+        }
+
+        #ifndef NO_OUTPUT_BUFFER
+          if( likely( zeroFD > 0 ) )
+          {
+                #ifdef __GNUC__
+                /* Silence stupid GCC warning. In all cases that zeroFD is > 0 here, outputBuffer is initialized */
+                #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+                #endif
+                munmap(outputBuffer, OUTPUT_BUFFER_SIZE);
+                #ifdef __GNUC__
+                #pragma GCC diagnostic pop
+                #endif
+                close(zeroFD);
+          }
+        #endif
         
         return 0;
 
