@@ -1,4 +1,17 @@
-* Sep 6 2016 Tim savannah <kata198@gmail.com
+* Sep 14 2016 Tim Savannah <kata198@gmail.com>
+- 7.1 (pending release)
+- Many more optimizations
+- Add "configure" script to change defaults
+- Implement a configurable "full view" for threads, to show same as processes
+- Implement configurable "flat view" for threads. Can be combined with "full
+view"
+- Lower memory footprint
+- Use (by default, configurable) a large output buffer for stdout.
+- Remove cygwin-specific Makefile and build, no longer required.
+- Fix warnings, unreachable memory
+- Allow CFLAGS to be overrided by environment
+
+* Sep 6 2016 Tim savannah <kata198@gmail.com>
 - Release 7.0 - Remove optional dependency on glib2, 
 instead implementing the optimization of uid -> username lookups
 inline, using a special method (described in myps2.c).
