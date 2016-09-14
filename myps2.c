@@ -33,8 +33,11 @@
 
 #include <sys/mman.h>
 
+/* Include optional config overrides ( by ./configure ) */
+#include "myps2_config.h"
+
 /* Maximum length of a /proc/PID/item path, with plenty of room to spare.
- *   Double if going into deep subdirs.
+ *   In usage, is doubled if going into deep subdirs.
  */
 #define PROC_PATH_LEN 32
 
@@ -47,9 +50,6 @@
   #define unlikely(x) x
   #define __hot
 #endif
-
-/* INSIST_USED - Silence "possibly unused" warnings */
-#define INSIST_USED(x) (void)(x)
 
 
 #ifdef _LINUX_LIMITS_H
@@ -230,7 +230,9 @@ char *strnstr(char *haystack, char *needle, unsigned int len)
 
 
 #ifdef SHOW_THREADS
-  #define THREADS_USE_TREE // For now, default to always showing tree format in threads mode. Comment out this line to get a less-pleasing view.
+  #ifndef SHOW_THREADS_FLAT
+    #define THREADS_USE_TREE // For now, default to always showing tree format in threads mode. Comment out this line to get a less-pleasing view.
+  #endif
 #endif
 
 #ifdef QUOTE_ARGS
@@ -464,10 +466,7 @@ __hot void printCmdLineStr(char *pidStr
                   DIR *taskDir;
                   struct dirent *dirInfo;
                   char *threadPid;
-                  #ifdef THREADS_USE_TREE
-                    char descended = 0;
-                  #endif
-                  char hadThread = 0;
+                  short threadID = 0;
 
                   if( unlikely( parentDir == NULL ) )
                   {
@@ -484,21 +483,29 @@ __hot void printCmdLineStr(char *pidStr
                           threadPid = dirInfo->d_name;
                           if(!isdigit(threadPid[0]) || strcmp(threadPid, pidStr) == 0)
                                   continue;
+                          if(threadID == 0)
+                          {
+                                  #ifdef THREADS_USE_TREE
+                                    printf("     |\n     \\ ____\n");
+                                  #endif
+                                  threadID = 1;
+                          }
                           #ifdef THREADS_USE_TREE
-                            if(descended == 0)
-                            {
-                                  printf("     |\n     \\ ____\n");
-                                  descended = 1;
-                            }
-                            hadThread = 1;
-                          #endif
-                          printf("\t%8s\tThread [%2u] ( %s )\n", threadPid, descended, cmdName);
-
-                          #ifdef THREADS_USE_TREE
-                            descended++;
+                            printf("\t%8s\tThread [%2u] ( %s )\n", threadPid, threadID, cmdName);
+                          #else
+                            #ifdef ALL_PROCS
+                              printf("%8s %10s\t(Thread [%2u] of %s)\n", threadPid, pwName, threadID, pidStr);
+                            #else
+                              printf("%8s\t(Thread [%2u] of %s)\n", threadPid, threadID, pidStr);
+                            #endif
                           #endif
 
+                          threadID++;
+
+                          /* TODO: Support "full view" for threads */
                           #if 0
+                          if(threadID >= 1)
+                                putchar('\n');
                           printCmdLineStr(threadPid
                           #ifdef ALL_PROCS
                                                           ,ownerUid
@@ -511,8 +518,8 @@ __hot void printCmdLineStr(char *pidStr
                   }
                   free(taskDir);
                   #ifdef THREADS_USE_TREE
-                    if(hadThread == 1)
-                          putchar('\n');
+                  if(threadID >= 1)
+                        putchar('\n');
                   #endif
 
           }
