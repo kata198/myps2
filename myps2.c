@@ -25,6 +25,7 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <fcntl.h>
 #include <dirent.h>
 #include <pwd.h>
 #include <errno.h>
@@ -35,11 +36,13 @@
 #define PROC_PATH_LEN 32
 
 #ifdef __GNUC__
-  #define likely(x)    __builtin_expect((x),1)
-  #define unlikely(x)  __builtin_expect((x),0)
+  #define likely(x)    __builtin_expect(!!(x),1)
+  #define unlikely(x)  __builtin_expect(!!(x),0)
+  #define __hot __attribute__((hot))
 #else
   #define likely(x)   x
   #define unlikely(x) x
+  #define __hot
 #endif
 
 #ifdef ALL_PROCS
@@ -206,7 +209,7 @@ char *strnstr(char *haystack, char *needle, unsigned int len)
                     break;
             }
             /* Check if we are matching on the end of both */
-            if( unlikely(i == len) && needle[j] == '\0' && haystack[i] == '\0' )
+            if( unlikely( i == len ) && needle[j] == '\0' && haystack[i] == '\0' )
                 return ret;
          }
     }
@@ -246,7 +249,7 @@ char *strnstr(char *haystack, char *needle, unsigned int len)
   }
 #endif
 
-unsigned int getProcessOwner(char *pidStr)
+__hot unsigned int getProcessOwner(char *pidStr)
 {
         static struct stat info;
         static char *path = NULL;
@@ -298,7 +301,7 @@ char *getCommandName(char* pidStr)
 #endif
 
 
-void printCmdLineStr(char *pidStr 
+__hot void printCmdLineStr(char *pidStr 
 #ifdef ALL_PROCS
                      ,unsigned int ownerUid 
 #endif
@@ -307,12 +310,12 @@ void printCmdLineStr(char *pidStr
 #endif
 )
 {
-        FILE *cmdlineFile;
+        int cmdlineFileFD;
         static char *buffer = NULL;
         static char *cmdlineFilename;
         char *cmdName;
 
-        unsigned int bufferLen = 0;
+        ssize_t bufferLen;
         #ifdef QUOTE_ARGS
           char *tmpEscaped;
         #endif
@@ -349,14 +352,14 @@ void printCmdLineStr(char *pidStr
           }
         #endif
                 
-        cmdlineFile = fopen(cmdlineFilename, "r");
-        if ( unlikely( !cmdlineFile ) )
+        cmdlineFileFD = open(cmdlineFilename, O_RDONLY);
+        if ( unlikely( cmdlineFileFD == -1 ) )
                 return;
 
-        bufferLen = fread(buffer, 1, ARG_MAX + (EXTRA_ARG_BUFFER - 1), cmdlineFile);
-        fclose(cmdlineFile);
+        bufferLen = read(cmdlineFileFD, buffer, ARG_MAX + EXTRA_ARG_BUFFER - 1);
+        close(cmdlineFileFD);
 
-        if ( unlikely( bufferLen == 0 ) )
+        if ( unlikely( bufferLen <= 0 ) )
                 return; // No cmdline, kthread and the like
 
         buffer[bufferLen] = '\0';
