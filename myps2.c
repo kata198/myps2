@@ -230,7 +230,7 @@ char *strnstr(char *haystack, char *needle, unsigned int len)
 
 
 #ifdef SHOW_THREADS
-  #ifndef SHOW_THREADS_FLAT
+  #ifndef THREADS_VIEW_FLAT
     #define THREADS_USE_TREE // For now, default to always showing tree format in threads mode. Comment out this line to get a less-pleasing view.
   #endif
 #endif
@@ -411,7 +411,7 @@ __hot void printCmdLineStr(char *pidStr
         }
                 
 
-        #ifdef SHOW_THREADS
+        #if defined(SHOW_THREADS) && !defined(THREADS_VIEW_FLAT)
           if (parentPidStr != NULL)
                   putchar('\t');
         #endif
@@ -490,31 +490,28 @@ __hot void printCmdLineStr(char *pidStr
                                   #endif
                                   threadID = 1;
                           }
-                          #ifdef THREADS_USE_TREE
-                            printf("\t%8s\tThread [%2u] ( %s )\n", threadPid, threadID, cmdName);
-                          #else
-                            #ifdef ALL_PROCS
-                              printf("%8s %10s\t(Thread [%2u] of %s)\n", threadPid, pwName, threadID, pidStr);
+
+                          #ifndef THREADS_VIEW_FULL
+                            #ifdef THREADS_USE_TREE
+                              printf("\t%8s\tThread [%2u] ( %s )\n", threadPid, threadID, cmdName);
                             #else
-                              printf("%8s\t(Thread [%2u] of %s)\n", threadPid, threadID, pidStr);
+                              #ifdef ALL_PROCS
+                                printf("%8s %10s\t(Thread [%2u] of %s)\n", threadPid, pwName, threadID, pidStr);
+                              #else
+                                printf("%8s\t(Thread [%2u] of %s)\n", threadPid, threadID, pidStr);
+                              #endif
                             #endif
-                          #endif
-
-                          threadID++;
-
-                          /* TODO: Support "full view" for threads */
-                          #if 0
-                          if(threadID >= 1)
-                                putchar('\n');
+                          #else
+//                          if(threadID >= 1)
+//                                putchar('\n');
                           printCmdLineStr(threadPid
                           #ifdef ALL_PROCS
                                                           ,ownerUid
                           #endif
-                          #ifdef SHOW_THREADS
                                                           ,pidStr
-                          #endif
                           );
                           #endif
+                          threadID++;
                   }
                   free(taskDir);
                   #ifdef THREADS_USE_TREE
