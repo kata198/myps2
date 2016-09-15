@@ -46,6 +46,9 @@ all: \
 
 DEP_FILES=myps2.c myps2_config.h
 
+myps2_config.h:
+	touch myps2_config.h
+
 bindir/myps2: ${DEP_FILES}
 	${CC} ${CFLAGS} myps2.c -o bindir/myps2
 
