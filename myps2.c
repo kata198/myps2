@@ -635,12 +635,14 @@ int main(int argc, char* argv[])
         #ifndef NO_OUTPUT_BUFFER
           if( likely( zeroFD > 0 ) )
           {
-                #ifdef __GNUC__
+                #if __GNUC__ >= 5
                 /* Silence stupid GCC warning. In all cases that zeroFD is > 0 here, outputBuffer is initialized */
                 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+                #else
+                #warning GCC is wrong about unused variable, and cannot disable warning on your gcc version.
                 #endif
                 munmap(outputBuffer, OUTPUT_BUFFER_SIZE);
-                #ifdef __GNUC__
+                #if __GNUC__ >= 5
                 #pragma GCC diagnostic pop
                 #endif
                 close(zeroFD);
