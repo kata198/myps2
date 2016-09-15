@@ -70,7 +70,8 @@
 
 #if !defined(NO_OUTPUT_BUFFER) && ( !defined(OUTPUT_BUFFER_SIZE) || OUTPUT_BUFFER_SIZE > 0)
   #ifndef OUTPUT_BUFFER_SIZE
-    #define OUTPUT_BUFFER_SIZE ARG_MAX * 5 + 1
+    /* Default 16K */
+    #define OUTPUT_BUFFER_SIZE (1024 * 16)
   #endif
 #endif
 
