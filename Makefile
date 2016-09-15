@@ -4,6 +4,11 @@ CFLAGS ?= -O3 -mtune=native -Wall
 EXTRA_ALL_PROCS_FLAGS=
 COMPILER ?= gcc
 
+# Cause everything to recompile when CFLAGS changes, unless user is root (to support "sudo make install")
+WHOAMI=$(shell whoami)
+CFLAGS_HASH=$(shell echo "${CFLAGS}" | md5sum | tr ' ' '\n' | head -n1)
+CFLAGS_HASH_FILE=$(shell test "${WHOAMI}" != "root" && echo .cflags.${CFLAGS_HASH} || echo .cflags.*)
+
 $(shell mkdir -p bindir)
 
 all: \
@@ -44,10 +49,16 @@ all: \
 	bindir/pst2r_cmdonly \
 	bindir/pst2r_quoted 
 
-DEP_FILES=myps2.c myps2_config.h
+# Depends on source and current CFLAGS
+DEP_FILES=myps2.c myps2_config.h ${CFLAGS_HASH_FILE}
 
 myps2_config.h:
 	touch myps2_config.h
+
+# When hash of CFLAGS changes, this unit causes all compiles to become invalidated
+${CFLAGS_HASH_FILE}:
+	test "${WHOAMI}" != "root" -a ! -e "${CFLAGS_HASH_FILE}" && rm -f .cflags.* || true
+	touch "${CFLAGS_HASH_FILE}"
 
 bindir/myps2: ${DEP_FILES}
 	${COMPILER} ${CFLAGS} myps2.c -o bindir/myps2
@@ -162,9 +173,11 @@ bindir/pst2r_quoted: ${DEP_FILES}
 
 clean:
 	rm -f bindir/*
+	rm -f .cflags*
 
 distclean:
 	rm -f bindir/*
+	rm -f .cflags*
 	echo " /* myps2_config.h - Run ./configure to generate and change defaults. */ " > myps2_config.h
 
 install: all
