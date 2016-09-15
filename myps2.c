@@ -123,7 +123,7 @@ static char **searchItems = NULL;
         static unsigned int lastMatchKey;
 
         /* linked_list_new - Create the root lists */
-        Myps2LinkedList *linked_list_new() 
+        static Myps2LinkedList *linked_list_new() 
         {
                 Myps2LinkedList *ret;
                 unsigned int i;
@@ -137,7 +137,7 @@ static char **searchItems = NULL;
                 return ret;
         }
 
-        char *linked_list_search(Myps2LinkedList *ll, unsigned int searchKey)
+        static char *linked_list_search(Myps2LinkedList *ll, unsigned int searchKey)
         {
                 if ( lastMatchKey == searchKey && lastMatch != NULL )
                 {
@@ -170,7 +170,7 @@ static char **searchItems = NULL;
                 return NULL;
         }
 
-        void linked_list_insert(Myps2LinkedList *ll, unsigned int insertKey, char *insertValue)
+        static void linked_list_insert(Myps2LinkedList *ll, unsigned int insertKey, char *insertValue)
         {
                 #if LL_NUM_LISTS > 1
                 ll = &ll[insertKey % LL_NUM_LISTS];
@@ -203,7 +203,7 @@ static char **searchItems = NULL;
 #endif
 
 
-char *strnstr(char *haystack, char *needle, unsigned int len)
+static char *strnstr(char *haystack, char *needle, unsigned int len)
 {
     unsigned int i, j;
     char *ret;
@@ -237,7 +237,7 @@ char *strnstr(char *haystack, char *needle, unsigned int len)
 #endif
 
 #ifdef QUOTE_ARGS
-  char *escapeQuotes(char *input)
+static char *escapeQuotes(char *input)
   {
           unsigned int len;
           char *ret, *retPtr;
@@ -264,7 +264,7 @@ char *strnstr(char *haystack, char *needle, unsigned int len)
   }
 #endif
 
-__hot unsigned int getProcessOwner(char *pidStr)
+__hot static unsigned int getProcessOwner(char *pidStr)
 {
         static struct stat info;
         static char *path = NULL;
@@ -284,7 +284,7 @@ __hot unsigned int getProcessOwner(char *pidStr)
 }
 
 #ifdef REPLACE_EXE_NAME
-char *getCommandName(char* pidStr)
+static char *getCommandName(char* pidStr)
 {
         static char *ret = NULL;
         static char *exeFilePath;
@@ -316,7 +316,7 @@ char *getCommandName(char* pidStr)
 #endif
 
 
-__hot void printCmdLineStr(char *pidStr 
+__hot static void printCmdLineStr(char *pidStr 
 #ifdef ALL_PROCS
                      ,unsigned int ownerUid 
 #endif
