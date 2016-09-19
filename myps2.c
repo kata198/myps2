@@ -328,106 +328,113 @@ __hot static void printCmdLineStr(char *pidStr
         int cmdlineFileFD;
         static char *buffer = NULL;
         static char *cmdlineFilename;
-        char *cmdName;
+        static char *cmdName;
 
-        ssize_t bufferLen;
+        static ssize_t bufferLen;
         #ifdef QUOTE_ARGS
           char *tmpEscaped;
         #endif
         
         #ifdef ALL_PROCS
-          char *pwName;
+          static char *pwName;
         #endif
 
         #ifdef SHOW_THREADS
           static char *parentDir = NULL;
         #endif
 
-        /* Reuse buffer each run */
-        if( unlikely( buffer == NULL) )
-        {
-                buffer = malloc(ARG_MAX + EXTRA_ARG_BUFFER);
-                cmdlineFilename = malloc(PROC_PATH_LEN * 2);
-                strcpy(cmdlineFilename, "/proc/");
-        }
-//        cmdlineFilename[6] = '\0';
-        
-        #ifndef SHOW_THREADS
-          sprintf(&cmdlineFilename[6], "%s/cmdline", pidStr);
-        #else
-          if(parentPidStr == NULL)
+        #if defined(SHOW_THREADS)
+          /* If we are thread, don't bother reading "cmdline" nor matching again, it will be the same. */
+          if(!parentPidStr)
           {
-                  /* We are parent */
-                  sprintf(&cmdlineFilename[6], "%s/cmdline", pidStr);
-          }
-          else
-          {
-                  /* We are thread */
-                  sprintf(&cmdlineFilename[6], "%s/task/%s/cmdline", parentPidStr, pidStr);
-          }
+                        
         #endif
-                
-        cmdlineFileFD = open(cmdlineFilename, O_RDONLY);
-        if ( unlikely( cmdlineFileFD == -1 ) )
-                return;
-
-        bufferLen = read(cmdlineFileFD, buffer, ARG_MAX + EXTRA_ARG_BUFFER - 1);
-        close(cmdlineFileFD);
-
-        if ( unlikely( bufferLen <= 0 ) )
-                return; // No cmdline, kthread and the like
-
-        buffer[bufferLen] = '\0';
-
-        #ifndef REPLACE_EXE_NAME
-          cmdName = buffer;
-        #else
-          cmdName = getCommandName(pidStr);
-          if ( unlikely( cmdName == NULL ) )
-                return; // exe is gone, proc must have died.
-          else if (cmdName == (char*)-EACCES)
-                cmdName = buffer; // Permission denied to readlink, so retain reported name via cmdline
-        #endif
-
-        //printf("searchITem is: %s\n", searchItem);
-        //printf("buffer is: %s\n", buffer);
-        if (searchItems != NULL)
-        {
-                unsigned int searchI = 0;
-                #ifdef CMD_ONLY
-                  unsigned int cmdNameLen = strlen(cmdName);
-                #endif
-                while(searchItems[searchI] != NULL)
+                /* Reuse buffer each run */
+                if( unlikely( buffer == NULL) )
                 {
-                        #ifdef CMD_ONLY
-                          // Command only we want the first arg only
-                          if(strnstr(cmdName, searchItems[searchI], cmdNameLen) == NULL)
-                                  return;
-                        #else
-                          if(strnstr(buffer, searchItems[searchI], bufferLen) == NULL)
-                                  return;
-                        #endif
-                        searchI++;
+                        buffer = malloc(ARG_MAX + EXTRA_ARG_BUFFER);
+                        cmdlineFilename = malloc(PROC_PATH_LEN * 2);
+                        strcpy(cmdlineFilename, "/proc/");
                 }
-        }
+                // cmdlineFilename[6] = '\0';
                 
+                sprintf(&cmdlineFilename[6], "%s/cmdline", pidStr);
+
+                        
+                cmdlineFileFD = open(cmdlineFilename, O_RDONLY);
+                if ( unlikely( cmdlineFileFD == -1 ) )
+                        return;
+
+                bufferLen = read(cmdlineFileFD, buffer, ARG_MAX + EXTRA_ARG_BUFFER - 1);
+                close(cmdlineFileFD);
+
+                if ( unlikely( bufferLen <= 0 ) )
+                        return; // No cmdline, kthread and the like
+
+                buffer[bufferLen] = '\0';
+
+                #ifndef REPLACE_EXE_NAME
+                  cmdName = buffer;
+                #else
+                  cmdName = getCommandName(pidStr);
+                  if ( unlikely( cmdName == NULL ) )
+                        return; // exe is gone, proc must have died.
+                  else if (cmdName == (char*)-EACCES)
+                        cmdName = buffer; // Permission denied to readlink, so retain reported name via cmdline
+                #endif
+
+                //printf("searchITem is: %s\n", searchItem);
+                //printf("buffer is: %s\n", buffer);
+                if (searchItems != NULL)
+                {
+                        unsigned int searchI = 0;
+                        #ifdef CMD_ONLY
+                          unsigned int cmdNameLen = strlen(cmdName);
+                        #endif
+                        while(searchItems[searchI] != NULL)
+                        {
+                                #ifdef CMD_ONLY
+                                  // Command only we want the first arg only
+                                  if(strnstr(cmdName, searchItems[searchI], cmdNameLen) == NULL)
+                                          return;
+                                #else
+                                  if(strnstr(buffer, searchItems[searchI], bufferLen) == NULL)
+                                          return;
+                                #endif
+                                searchI++;
+                        }
+                }
+
+        #if defined(SHOW_THREADS)
+          }
+        #endif
 
         #if defined(SHOW_THREADS) && !defined(THREADS_VIEW_FLAT)
+          /* Tab-indent next level for threads */
           if (parentPidStr != NULL)
                   putchar('\t');
         #endif
-        #ifdef ALL_PROCS
-          pwName = linked_list_search(pwdInfo, ownerUid);
 
-          if ( unlikely( pwName == NULL ) )
+        #ifdef ALL_PROCS
+          #if defined(SHOW_THREADS)
+          /* Here we will use the already-found pwName from the parent process */
+          if (!parentPidStr)
           {
-                  struct passwd *pwinfo = getpwuid(ownerUid);
-                  if ( unlikely( pwinfo == NULL ) )
-                          return; // No longer active process
-                  pwName = malloc(strlen(pwinfo->pw_name)+1);
-                  strcpy(pwName, pwinfo->pw_name);
-                  linked_list_insert(pwdInfo, ownerUid, pwName);
+                  #endif
+                  pwName = linked_list_search(pwdInfo, ownerUid);
+
+                  if ( unlikely( pwName == NULL ) )
+                  {
+                          struct passwd *pwinfo = getpwuid(ownerUid);
+                          if ( unlikely( pwinfo == NULL ) )
+                                  return; // No longer active process
+                          pwName = malloc(strlen(pwinfo->pw_name)+1);
+                          strcpy(pwName, pwinfo->pw_name);
+                          linked_list_insert(pwdInfo, ownerUid, pwName);
+                  }
+          #if defined(SHOW_THREADS)
           }
+          #endif
 
           printf("%8s %10s\t%s", pidStr, pwName, cmdName);
         #else
@@ -503,14 +510,13 @@ __hot static void printCmdLineStr(char *pidStr
                               #endif
                             #endif
                           #else
-//                          if(threadID >= 1)
-//                                putchar('\n');
-                          printCmdLineStr(threadPid
-                          #ifdef ALL_PROCS
+                            /* THREADS_VIEW_FULL - recurse */
+                            printCmdLineStr(threadPid
+                                                        #ifdef ALL_PROCS
                                                           ,ownerUid
-                          #endif
+                                                        #endif
                                                           ,pidStr
-                          );
+                            );
                           #endif
                           threadID++;
                   }
