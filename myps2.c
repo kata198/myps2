@@ -267,13 +267,9 @@ static char *escapeQuotes(char *input)
 __hot static unsigned int getProcessOwner(char *pidStr)
 {
         static struct stat info;
-        static char *path = NULL;
         /* Reuse "path" variable and /proc/ portion, */
-        if( unlikely( path == NULL ) )
-        {
-                path = malloc(PROC_PATH_LEN);
-                strcpy(path, "/proc/");
-        }
+        static char path[PROC_PATH_LEN] = { '/', 'p', 'r', 'o', 'c', '/', 0 };
+
 //        path[6] = '\0';
         strcpy(&path[6], pidStr);
 
@@ -286,18 +282,10 @@ __hot static unsigned int getProcessOwner(char *pidStr)
 #ifdef REPLACE_EXE_NAME
 static char *getCommandName(char* pidStr)
 {
-        static char *ret = NULL;
-        static char *exeFilePath;
+        static char ret[PATH_MAX + 1];;
+        static char exeFilePath[PROC_PATH_LEN] = { '/', 'p', 'r', 'o', 'c', '/', 0 };
 
         ssize_t len;
-
-        if ( unlikely( ret == NULL ) )
-        {
-                ret = malloc(PATH_MAX + 1);
-                exeFilePath = malloc(PROC_PATH_LEN);
-                strcpy(exeFilePath, "/proc/");
-        }
-//        exeFilePath[6] = '\0';
 
         sprintf(&exeFilePath[6], "%s/exe", pidStr);
 
@@ -326,8 +314,9 @@ __hot static void printCmdLineStr(char *pidStr
 )
 {
         int cmdlineFileFD;
-        static char *buffer = NULL;
-        static char *cmdlineFilename;
+        /* Reuse buffers each run */
+        static char buffer[ARG_MAX + EXTRA_ARG_BUFFER];
+        static char cmdlineFilename[PROC_PATH_LEN * 2] = {'/', 'p', 'r', 'o', 'c', '/', 0};
         static char *cmdName;
 
         static ssize_t bufferLen;
@@ -349,13 +338,6 @@ __hot static void printCmdLineStr(char *pidStr
           {
                         
         #endif
-                /* Reuse buffer each run */
-                if( unlikely( buffer == NULL) )
-                {
-                        buffer = malloc(ARG_MAX + EXTRA_ARG_BUFFER);
-                        cmdlineFilename = malloc(PROC_PATH_LEN * 2);
-                        strcpy(cmdlineFilename, "/proc/");
-                }
                 // cmdlineFilename[6] = '\0';
                 
                 sprintf(&cmdlineFilename[6], "%s/cmdline", pidStr);
