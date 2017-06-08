@@ -13,6 +13,7 @@ Configure some options for myps2. Not required, only use to cutomize.
   Options:
 
     --help / -h / -?       -  Print this message
+
     --no-output-buffer     -  Instead of allocating a large buffer for stdout
                               use default line-by-line (slower, uses less mem)
 
@@ -34,6 +35,8 @@ Configure some options for myps2. Not required, only use to cutomize.
                               Must be > 0. Use 1 to have a single bucket
                               and disable splitting based on uid
 
+    --summon-the-cows         ??????
+
     --threads-view-flat       On the *pst2* variants (which show threads), the default
                               is to display them \"tree-style\", that is indented from
                               the parent process.
@@ -43,6 +46,7 @@ Configure some options for myps2. Not required, only use to cutomize.
 
     --threads-view-full       On the *pst2* variants, show threads with same display
                               as a normal process. May still be tree or flat view.
+
 
 Run with no arguments to restore default settings.
 "
@@ -57,6 +61,7 @@ NO_OUTPUT_BUFFER=
 OUTPUT_BUFFER_SIZE=
 NUM_USERNAME_BUCKETS=
 THREADS_VIEW_FLAT=
+MOO=false
 
 for arg in "$@";
 do
@@ -65,7 +70,7 @@ do
         usage;
         exit 1;
     fi
-    if ( echo "${arg}" | grep -q '^--no-output-buffer$' );
+    if [[ "${arg}" = "--no-output-buffer" ]];
     then
         NO_OUTPUT_BUFFER="true"
     elif ( echo "${arg}" | grep -q '^--output-buffer-size=[0-9][0-9]*[kK]*$' );
@@ -78,12 +83,15 @@ do
     elif ( echo "${arg}" | grep -q '^--num-username-buckets=[0-9][0-9]*$' );
     then
         NUM_USERNAME_BUCKETS=$(echo "${arg}" | sed 's|--num-username-buckets=||g')
-    elif ( echo "${arg}" | grep -q '^--threads-view-flat$' );
+    elif [[ "${arg}" = "--threads-view-flat" ]];
     then
         THREADS_VIEW_FLAT="true"
-    elif ( echo "${arg}" | grep -q '^--threads-view-full$' );
+    elif [[ "${arg}" = "--threads-view-full" ]];
     then
         THREADS_VIEW_FULL="true"
+    elif [[ "${arg}" = "--summon-the-cows" ]];
+    then
+        MOO=true
     else
         echoerr "Unknown/Invalid Argument: ${arg}"
         echoerr;
@@ -149,3 +157,32 @@ writef "#endif\n"
 cat myps2_config.h
 
 popd >/dev/null 2>&1
+
+if ( $MOO );
+then
+    for i in `seq 5`; do
+        printf "\r                             "
+        printf "\n"
+        printf "Moo moo"
+        sleep 1.1
+        printf "\r                             "
+        printf "\rMoo"
+        for i in `seq 4`;
+        do
+            printf " moo"
+            sleep .22
+        done
+        printf "\r                             "
+        printf "\rMoo"
+        sleep .2
+        printf "moo"
+        sleep .5
+        printf "\r                              "
+        for i in `seq 4`;
+        do
+            printf " moo"
+            sleep .3
+        done
+    done
+    printf "\n"
+fi

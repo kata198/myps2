@@ -109,7 +109,27 @@ Has no external dependencies than libc. Former glib-2.0 dependencies have been r
 INSTALLATION
 ============
 
-Use make && make install
+
+Configuration
+-------------
+
+There is a provided "configure" script which can alter aspects of the program. You do not need to run this, for the most part it is for tweaking internals, for example to reduce memory usage at the cost of speed. 
+
+There are a few display output options.
+
+Run "configure --help" to see all options and a short description of them
+
+
+Compile
+-------
+
+Run: make 
+
+
+Install
+-------
+
+Run: make install
 
 
 If DESTDIR environment variable is present, it will try to install to that directory. Otherwise, if /usr/bin is writeable, it will install there, else it will install in ~/bin
