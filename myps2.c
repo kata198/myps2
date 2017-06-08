@@ -292,8 +292,6 @@ static char *getCommandName(char* pidStr)
         len = readlink(exeFilePath, ret, PATH_MAX);
         if ( len == -1 )
         {
-                if ( errno == EACCES )
-                        return (char *)-EACCES;
                 return NULL;
         }
 
@@ -358,11 +356,15 @@ __hot static void printCmdLineStr(char *pidStr
                 #ifndef REPLACE_EXE_NAME
                   cmdName = buffer;
                 #else
+                  errno = 0;
                   cmdName = getCommandName(pidStr);
                   if ( unlikely( cmdName == NULL ) )
-                        return; // exe is gone, proc must have died.
-                  else if (cmdName == (char*)-EACCES)
-                        cmdName = buffer; // Permission denied to readlink, so retain reported name via cmdline
+                  {
+                        if ( errno == EACCES )
+                                cmdName = buffer; // Permission denied to readlink, so retain reported name via cmdline
+                        else
+                                return; // exe is gone, proc must have died.
+                  }
                 #endif
 
                 //printf("searchITem is: %s\n", searchItem);
