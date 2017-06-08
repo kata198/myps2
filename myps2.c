@@ -581,24 +581,32 @@ int main(int argc, char* argv[])
                 searchItems[lastSlot] = NULL;
         }
 
-
         #ifndef NO_OUTPUT_BUFFER
-          char *outputBuffer;
-          int zeroFD;
-          zeroFD = open("/dev/zero", O_RDONLY);
-          if ( likely( zeroFD > 0 ) )
-          {
-                outputBuffer = mmap(0, OUTPUT_BUFFER_SIZE + 1, PROT_READ | PROT_WRITE, MAP_PRIVATE, zeroFD, 0);
+          char *outputBuffer = NULL;
+          #ifndef MAP_ANONYMOUS
+            int outputBufferFD;
+            outputBufferFD = open("/dev/zero", O_RDONLY);
+            if ( likely( outputBufferFD > 0 ) )
+            {
+                outputBuffer = mmap(NULL, OUTPUT_BUFFER_SIZE + 1, PROT_READ | PROT_WRITE, MAP_PRIVATE, outputBufferFD, 0);
+          #else
+                outputBuffer = mmap(NULL, OUTPUT_BUFFER_SIZE + 1, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+          #endif
                 if ( unlikely( outputBuffer == MAP_FAILED ) )
                 {
-                        close(zeroFD);
-                        zeroFD = -1;
+                        #ifndef MAP_ANONYMOUS
+                          close(outputBufferFD);
+                          outputBufferFD = -1;
+                        #endif
+                        outputBuffer = NULL;
                 }
                 else
                 {
                         setvbuf(stdout, outputBuffer, _IOFBF, OUTPUT_BUFFER_SIZE);
                 }
-          }
+          #ifndef MAP_ANONYMOUS
+            }
+          #endif
         #endif
 
         myPidStr = malloc(8);
@@ -639,10 +647,10 @@ int main(int argc, char* argv[])
         }
 
         #ifndef NO_OUTPUT_BUFFER
-          if( likely( zeroFD > 0 ) )
+          if( likely( outputBuffer != NULL ) )
           {
                 #if __GNUC__ >= 5
-                /* Silence stupid GCC warning. In all cases that zeroFD is > 0 here, outputBuffer is initialized */
+                /* Silence stupid GCC warning. In all cases that outputBufferFD != NULL here, outputBuffer is initialized */
                 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
                 #else
                 #warning GCC is wrong about unused variable, and cannot disable warning on your gcc version.
@@ -651,7 +659,10 @@ int main(int argc, char* argv[])
                 #if __GNUC__ >= 5
                 #pragma GCC diagnostic pop
                 #endif
-                close(zeroFD);
+
+                #ifndef MAP_ANONYMOUS
+                  close(outputBufferFD);
+                #endif
           }
         #endif
         
