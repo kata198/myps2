@@ -532,7 +532,7 @@ __hot static void printCmdLineStr(char *pidStr
 
 int main(int argc, char* argv[])
 {
-        unsigned int myPid, processedOwner;
+        unsigned int myPid, processOwner;
 
         DIR *procDir;
         char *pid;
@@ -624,13 +624,13 @@ int main(int argc, char* argv[])
                 pid = dirInfo->d_name;
                 if(!isdigit(pid[0]) || unlikely( strcmp(myPidStr, pid) == 0 ) )
                         continue;
-                processedOwner = getProcessOwner(pid);
+                processOwner = getProcessOwner(pid);
                 #ifndef ALL_PROCS
-                  if(processedOwner == myUid)
+                  if(processOwner == myUid)
                 #endif
                 printCmdLineStr(pid
                 #ifdef ALL_PROCS
-                                ,processedOwner
+                                ,processOwner
                 #endif
                 #ifdef SHOW_THREADS
                                 ,NULL
