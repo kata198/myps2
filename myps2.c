@@ -375,6 +375,24 @@ __hot static void printCmdLineStr(char *pidStr
                         #ifdef CMD_ONLY
                           unsigned int cmdNameLen = strlen(cmdName);
                         #endif
+                        #if defined(REPLACE_EXE_NAME) && !defined(CMD_ONLY)
+                          /* If we potentially changed the cmdName, then we must scan the NEW cmdName
+                           *  for match, and exclude the OLD cmdName from the buffer scan
+                           */
+                          char *useBuffer;
+                          unsigned int useBufferLen;
+
+                          if ( buffer == cmdName )
+                          {
+                                useBuffer = (char *)buffer;
+                                useBufferLen = bufferLen;
+                          }
+                          else
+                          {
+                                useBuffer = (char *) ( &buffer[ strlen(buffer) + 1 ] );
+                                useBufferLen = bufferLen - ( useBuffer - ((char *)buffer) );
+                          }
+                        #endif
                         while(searchItems[searchI] != NULL)
                         {
                                 #ifdef CMD_ONLY
@@ -382,8 +400,13 @@ __hot static void printCmdLineStr(char *pidStr
                                   if(strnstr(cmdName, searchItems[searchI], cmdNameLen) == NULL)
                                           return;
                                 #else
-                                  if(strnstr(buffer, searchItems[searchI], bufferLen) == NULL)
+                                  #if defined(REPLACE_EXE_NAME) && !defined(CMD_ONLY)
+                                    if( strnstr(useBuffer, searchItems[searchI], useBufferLen ) == NULL && strstr(cmdName, searchItems[searchI]) == NULL )
+                                        return;
+                                  #else
+                                    if(strnstr(buffer, searchItems[searchI], bufferLen) == NULL)
                                           return;
+                                  #endif
                                 #endif
                                 searchI++;
                         }
