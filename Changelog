@@ -1,5 +1,5 @@
-* Sep 14 2016 Tim Savannah <kata198@gmail.com>
-- 7.1 (pending release)
+* Jun 8 2017 Tim Savannah <kata198@gmail.com>
+- 7.1
 - Many more optimizations
 - Add "configure" script to change defaults
 - Implement a configurable "full view" for threads, to show same as processes
@@ -10,6 +10,9 @@ view"
 - Remove cygwin-specific Makefile and build, no longer required.
 - Fix warnings, unreachable memory
 - Allow CFLAGS to be overrided by environment
+
+- Add some simple (not installed by default) "mypidof2" and "pidof2" which use
+myps2 and ps2 to gather pids like pidof
 
 * Sep 6 2016 Tim savannah <kata198@gmail.com>
 - Release 7.0 - Remove optional dependency on glib2, 
