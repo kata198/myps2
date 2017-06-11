@@ -47,7 +47,9 @@ all: \
 	bindir/ps2r_quoted \
 	bindir/pst2r \
 	bindir/pst2r_cmdonly \
-	bindir/pst2r_quoted 
+	bindir/pst2r_quoted \
+	bindir/pidof2 \
+	bindir/mypidof2
 
 # Depends on source and current CFLAGS
 DEP_FILES=myps2.c myps2_config.h ${CFLAGS_HASH_FILE}
@@ -169,6 +171,12 @@ bindir/pst2_quoted: ${DEP_FILES}
 
 bindir/pst2r_quoted: ${DEP_FILES}
 	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D QUOTE_ARGS -D ALL_PROCS -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/pst2r_quoted
+
+bindir/pidof2: ${DEP_FILES}
+	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D PIDOF myps2.c -o bindir/pidof2
+
+bindir/mypidof2: ${DEP_FILES}
+	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D PIDOF myps2.c -o bindir/mypidof2
 
 
 clean:

@@ -79,8 +79,11 @@ volatile const char *author = "Created by Tim Savannah <kata198@gmail.com>. I lo
 volatile const char *version = "7.1";
 
 static char **searchItems = NULL;
+#ifdef PIDOF
+static int anyResults = 0;
+#endif
 
-#ifdef ALL_PROCS
+#if defined(ALL_PROCS) && !defined(PIDOF)
 
         /* Optimization IMPL:
  *
@@ -315,14 +318,16 @@ __hot static void printCmdLineStr(char *pidStr
         /* Reuse buffers each run */
         static char buffer[ARG_MAX + EXTRA_ARG_BUFFER];
         static char cmdlineFilename[PROC_PATH_LEN * 2] = {'/', 'p', 'r', 'o', 'c', '/', 0};
+        #ifndef PIDOF
         static char *cmdName;
+        #endif
 
         static ssize_t bufferLen;
         #ifdef QUOTE_ARGS
           char *tmpEscaped;
         #endif
         
-        #ifdef ALL_PROCS
+        #if defined(ALL_PROCS) && !defined(PIDOF)
           static char *pwName;
         #endif
 
@@ -353,6 +358,7 @@ __hot static void printCmdLineStr(char *pidStr
 
                 buffer[bufferLen] = '\0';
 
+                #ifndef PIDOF
                 #ifndef REPLACE_EXE_NAME
                   cmdName = buffer;
                 #else
@@ -365,6 +371,7 @@ __hot static void printCmdLineStr(char *pidStr
                         else
                                 return; // exe is gone, proc must have died.
                   }
+                #endif
                 #endif
 
                 //printf("searchITem is: %s\n", searchItem);
@@ -422,6 +429,14 @@ __hot static void printCmdLineStr(char *pidStr
                   putchar('\t');
         #endif
 
+        #ifdef PIDOF
+          if ( anyResults )
+                putchar(' ');
+          anyResults = 1;
+          printf("%s", pidStr);
+          return;
+        #else
+
         #ifdef ALL_PROCS
           #if defined(SHOW_THREADS)
           /* Here we will use the already-found pwName from the parent process */
@@ -446,6 +461,8 @@ __hot static void printCmdLineStr(char *pidStr
           printf("%8s %10s\t%s", pidStr, pwName, cmdName);
         #else
           printf("%8s\t%s", pidStr, cmdName);
+        #endif
+
         #endif
 
         #ifndef CMD_ONLY
@@ -620,7 +637,7 @@ int main(int argc, char* argv[])
         myPid = getpid();
 
         sprintf(myPidStr, "%u", myPid);
-        #ifdef ALL_PROCS
+        #if defined(ALL_PROCS) && !defined(PIDOF)
             pwdInfo = linked_list_new();
             lastMatch = NULL;
         #endif
@@ -644,6 +661,9 @@ int main(int argc, char* argv[])
                 #endif
                 );
         }
+        #ifdef PIDOF
+          putchar('\n');
+        #endif
         fflush(stdout);
 
         free(procDir);
