@@ -1,13 +1,21 @@
 #!/usr/bin/make -f
 
-CFLAGS ?= -O3 -mtune=native -Wall -Wno-format-overflow
+CFLAGS ?= -O3 -mtune=native -pipe -s
 EXTRA_ALL_PROCS_FLAGS=
 COMPILER ?= gcc
+
+DEBUG_CFLAGS = -Og -ggdb3
+
+NATIVE_CFLAGS = -O3 -march=native -mtune=native -Wl,-O1,--sort-common,--as-needed,-z,relro -Wl,-z,combreloc -s
+
+USE_CFLAGS = ${CFLAGS} -Wall -Wno-format-overflow
+
 
 # Cause everything to recompile when CFLAGS changes, unless user is root (to support "sudo make install")
 WHOAMI=$(shell whoami)
 CFLAGS_HASH=$(shell echo "${CFLAGS}" | md5sum | tr ' ' '\n' | head -n1)
 CFLAGS_HASH_FILE=$(shell test "${WHOAMI}" != "root" && echo .cflags.${CFLAGS_HASH} || echo .cflags.*)
+
 
 $(shell mkdir -p bindir)
 
@@ -51,6 +59,15 @@ all: \
 	bindir/pidof2 \
 	bindir/mypidof2
 
+.PHONY: debug
+debug: 
+	make CFLAGS="${DEBUG_CFLAGS}"
+
+.PHONY: native
+native:
+	make CFLAGS="${NATIVE_CFLAGS}"
+
+
 # Depends on source and current CFLAGS
 DEP_FILES=myps2.c myps2_config.h ${CFLAGS_HASH_FILE}
 
@@ -63,120 +80,120 @@ ${CFLAGS_HASH_FILE}:
 	touch "${CFLAGS_HASH_FILE}"
 
 bindir/myps2: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} myps2.c -o bindir/myps2
+	${COMPILER} ${USE_CFLAGS} myps2.c -o bindir/myps2
 
 bindir/myps2r: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} myps2.c -D REPLACE_EXE_NAME -o bindir/myps2r
+	${COMPILER} ${USE_CFLAGS} myps2.c -D REPLACE_EXE_NAME -o bindir/myps2r
 
 bindir/myps2_cmdonly: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D CMD_ONLY myps2.c -o bindir/myps2_cmdonly
+	${COMPILER} ${USE_CFLAGS} -D CMD_ONLY myps2.c -o bindir/myps2_cmdonly
 
 bindir/myps2r_cmdonly: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D CMD_ONLY myps2.c -D REPLACE_EXE_NAME -o bindir/myps2r_cmdonly
+	${COMPILER} ${USE_CFLAGS} -D CMD_ONLY myps2.c -D REPLACE_EXE_NAME -o bindir/myps2r_cmdonly
 
 bindir/myps2_quoted: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D QUOTE_ARGS myps2.c -o bindir/myps2_quoted
+	${COMPILER} ${USE_CFLAGS} -D QUOTE_ARGS myps2.c -o bindir/myps2_quoted
 
 bindir/myps2r_quoted: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D QUOTE_ARGS myps2.c -D REPLACE_EXE_NAME -o bindir/myps2r_quoted
+	${COMPILER} ${USE_CFLAGS} -D QUOTE_ARGS myps2.c -D REPLACE_EXE_NAME -o bindir/myps2r_quoted
 
 bindir/mypst2: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} myps2.c -D SHOW_THREADS -o bindir/mypst2
+	${COMPILER} ${USE_CFLAGS} myps2.c -D SHOW_THREADS -o bindir/mypst2
 
 bindir/mypst2r: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} myps2.c -D SHOW_THREADS -D REPLACE_EXE_NAME -o bindir/mypst2r
+	${COMPILER} ${USE_CFLAGS} myps2.c -D SHOW_THREADS -D REPLACE_EXE_NAME -o bindir/mypst2r
 
 bindir/mypst2_cmdonly: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D CMD_ONLY -D SHOW_THREADS myps2.c -o bindir/mypst2_cmdonly
+	${COMPILER} ${USE_CFLAGS} -D CMD_ONLY -D SHOW_THREADS myps2.c -o bindir/mypst2_cmdonly
 
 bindir/mypst2r_cmdonly: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D CMD_ONLY -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/mypst2r_cmdonly
+	${COMPILER} ${USE_CFLAGS} -D CMD_ONLY -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/mypst2r_cmdonly
 
 bindir/mypst2_quoted: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D QUOTE_ARGS -D SHOW_THREADS myps2.c -o bindir/mypst2_quoted
+	${COMPILER} ${USE_CFLAGS} -D QUOTE_ARGS -D SHOW_THREADS myps2.c -o bindir/mypst2_quoted
 
 bindir/mypst2r_quoted: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D QUOTE_ARGS -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/mypst2r_quoted
+	${COMPILER} ${USE_CFLAGS} -D QUOTE_ARGS -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/mypst2r_quoted
 
 
 bindir/yourps2: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D OTHER_USER_PROCS myps2.c -o bindir/yourps2
+	${COMPILER} ${USE_CFLAGS} -D OTHER_USER_PROCS myps2.c -o bindir/yourps2
 
 bindir/yourps2r: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D OTHER_USER_PROCS -D REPLACE_EXE_NAME myps2.c -o bindir/yourps2r
+	${COMPILER} ${USE_CFLAGS} -D OTHER_USER_PROCS -D REPLACE_EXE_NAME myps2.c -o bindir/yourps2r
 
 bindir/yourps2_cmdonly: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D OTHER_USER_PROCS -D CMD_ONLY myps2.c -o bindir/yourps2_cmdonly
+	${COMPILER} ${USE_CFLAGS} -D OTHER_USER_PROCS -D CMD_ONLY myps2.c -o bindir/yourps2_cmdonly
 
 bindir/yourps2r_cmdonly: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D OTHER_USER_PROCS -D CMD_ONLY -D REPLACE_EXE_NAME myps2.c -o bindir/yourps2r_cmdonly
+	${COMPILER} ${USE_CFLAGS} -D OTHER_USER_PROCS -D CMD_ONLY -D REPLACE_EXE_NAME myps2.c -o bindir/yourps2r_cmdonly
 
 bindir/yourps2_quoted: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D OTHER_USER_PROCS -D QUOTE_ARGS myps2.c -o bindir/yourps2_quoted
+	${COMPILER} ${USE_CFLAGS} -D OTHER_USER_PROCS -D QUOTE_ARGS myps2.c -o bindir/yourps2_quoted
 
 bindir/yourps2r_quoted: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D OTHER_USER_PROCS -D QUOTE_ARGS -D REPLACE_EXE_NAME myps2.c -o bindir/yourps2r_quoted
+	${COMPILER} ${USE_CFLAGS} -D OTHER_USER_PROCS -D QUOTE_ARGS -D REPLACE_EXE_NAME myps2.c -o bindir/yourps2r_quoted
 
 bindir/yourpst2: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D OTHER_USER_PROCS myps2.c -D SHOW_THREADS -o bindir/yourpst2
+	${COMPILER} ${USE_CFLAGS} -D OTHER_USER_PROCS myps2.c -D SHOW_THREADS -o bindir/yourpst2
 
 bindir/yourpst2r: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D OTHER_USER_PROCS myps2.c -D SHOW_THREADS -D REPLACE_EXE_NAME -o bindir/yourpst2r
+	${COMPILER} ${USE_CFLAGS} -D OTHER_USER_PROCS myps2.c -D SHOW_THREADS -D REPLACE_EXE_NAME -o bindir/yourpst2r
 
 bindir/yourpst2_cmdonly: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D OTHER_USER_PROCS -D CMD_ONLY -D SHOW_THREADS myps2.c -o bindir/yourpst2_cmdonly
+	${COMPILER} ${USE_CFLAGS} -D OTHER_USER_PROCS -D CMD_ONLY -D SHOW_THREADS myps2.c -o bindir/yourpst2_cmdonly
 
 bindir/yourpst2r_cmdonly: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D OTHER_USER_PROCS -D CMD_ONLY -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/yourpst2r_cmdonly
+	${COMPILER} ${USE_CFLAGS} -D OTHER_USER_PROCS -D CMD_ONLY -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/yourpst2r_cmdonly
 
 bindir/yourpst2_quoted: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D OTHER_USER_PROCS -D QUOTE_ARGS -D SHOW_THREADS myps2.c -o bindir/yourpst2_quoted
+	${COMPILER} ${USE_CFLAGS} -D OTHER_USER_PROCS -D QUOTE_ARGS -D SHOW_THREADS myps2.c -o bindir/yourpst2_quoted
 
 bindir/yourpst2r_quoted: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} -D OTHER_USER_PROCS -D QUOTE_ARGS -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/yourpst2r_quoted
+	${COMPILER} ${USE_CFLAGS} -D OTHER_USER_PROCS -D QUOTE_ARGS -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/yourpst2r_quoted
 
 
 bindir/ps2: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS myps2.c -o bindir/ps2
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS myps2.c -o bindir/ps2
 
 bindir/ps2r: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D REPLACE_EXE_NAME myps2.c -o bindir/ps2r
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D REPLACE_EXE_NAME myps2.c -o bindir/ps2r
 
 bindir/ps2_cmdonly: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D CMD_ONLY -D ALL_PROCS myps2.c -o bindir/ps2_cmdonly
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D CMD_ONLY -D ALL_PROCS myps2.c -o bindir/ps2_cmdonly
 
 bindir/ps2r_cmdonly: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D CMD_ONLY -D ALL_PROCS -D REPLACE_EXE_NAME myps2.c -o bindir/ps2r_cmdonly
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D CMD_ONLY -D ALL_PROCS -D REPLACE_EXE_NAME myps2.c -o bindir/ps2r_cmdonly
 
 bindir/ps2_quoted: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D QUOTE_ARGS -D ALL_PROCS myps2.c -o bindir/ps2_quoted
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D QUOTE_ARGS -D ALL_PROCS myps2.c -o bindir/ps2_quoted
 
 bindir/ps2r_quoted: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D QUOTE_ARGS -D ALL_PROCS -D REPLACE_EXE_NAME myps2.c -o bindir/ps2r_quoted
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D QUOTE_ARGS -D ALL_PROCS -D REPLACE_EXE_NAME myps2.c -o bindir/ps2r_quoted
 
 bindir/pst2: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D SHOW_THREADS myps2.c -o bindir/pst2
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D SHOW_THREADS myps2.c -o bindir/pst2
 
 bindir/pst2r: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/pst2r
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/pst2r
 
 bindir/pst2_cmdonly: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D CMD_ONLY -D ALL_PROCS -D SHOW_THREADS myps2.c -o bindir/pst2_cmdonly
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D CMD_ONLY -D ALL_PROCS -D SHOW_THREADS myps2.c -o bindir/pst2_cmdonly
 
 bindir/pst2r_cmdonly: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D CMD_ONLY -D ALL_PROCS -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/pst2r_cmdonly
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D CMD_ONLY -D ALL_PROCS -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/pst2r_cmdonly
 
 bindir/pst2_quoted: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D QUOTE_ARGS -D ALL_PROCS -D SHOW_THREADS myps2.c -o bindir/pst2_quoted
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D QUOTE_ARGS -D ALL_PROCS -D SHOW_THREADS myps2.c -o bindir/pst2_quoted
 
 bindir/pst2r_quoted: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D QUOTE_ARGS -D ALL_PROCS -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/pst2r_quoted
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D QUOTE_ARGS -D ALL_PROCS -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/pst2r_quoted
 
 bindir/pidof2: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D PIDOF myps2.c -o bindir/pidof2
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D PIDOF myps2.c -o bindir/pidof2
 
 bindir/mypidof2: ${DEP_FILES}
-	${COMPILER} ${CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D PIDOF myps2.c -o bindir/mypidof2
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D PIDOF myps2.c -o bindir/mypidof2
 
 
 clean:
