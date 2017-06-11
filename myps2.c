@@ -337,7 +337,7 @@ __hot static void printCmdLineStr(char *pidStr
         #endif
 
         #ifdef SHOW_THREADS
-          static char *parentDir = NULL;
+          static char parentDir[PROC_PATH_LEN] = {'/', 'p', 'r', 'o', 'c', '/', 0 };
         #endif
 
         #if defined(SHOW_THREADS)
@@ -505,13 +505,6 @@ __hot static void printCmdLineStr(char *pidStr
                   char *threadPid;
                   short threadID = 0;
 
-                  if( unlikely( parentDir == NULL ) )
-                  {
-                        parentDir = malloc(PROC_PATH_LEN);
-                        strcpy(parentDir, "/proc/");
-                  }
-//                  parentDir[6] = '\0';
-
                   sprintf(&parentDir[6], "%s/task", pidStr);
 
                   taskDir = opendir(parentDir);
@@ -565,7 +558,7 @@ int main(int argc, char* argv[])
 
         DIR *procDir;
         char *pid;
-        char *myPidStr;
+        char myPidStr[8];
         struct dirent *dirInfo;
         #ifndef ALL_PROCS
           unsigned int myUid;
@@ -638,7 +631,6 @@ int main(int argc, char* argv[])
           #endif
         #endif
 
-        myPidStr = malloc(8);
         myPid = getpid();
 
         sprintf(myPidStr, "%u", myPid);
@@ -673,7 +665,6 @@ int main(int argc, char* argv[])
         fflush(stdout);
 
         free(procDir);
-        free(myPidStr);
         if(searchItems != NULL)
         {
             free(searchItems);
