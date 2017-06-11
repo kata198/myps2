@@ -667,7 +667,8 @@ int main(int argc, char* argv[])
                 );
         }
         #ifdef PIDOF
-          putchar('\n');
+          if ( anyResults )
+            putchar('\n');
         #endif
         fflush(stdout);
 
