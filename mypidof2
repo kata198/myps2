@@ -1,9 +1,0 @@
-#!/bin/bash
-
-MYPS2_RESULTS="$(myps2 "$@" | grep -v "mypidof2")"
-RET=$?
-if [ ! -z "${MYPS2_RESULTS}" ];
-then
-    printf "%s\n" "$(echo "${MYPS2_RESULTS}" | grep -E "^[ ]+[0-9]+" | awk {'print $1'} | tr '\n' ' ')"
-fi
-exit $RET
