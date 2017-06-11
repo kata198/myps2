@@ -1,3 +1,13 @@
+* ??? ? ???? Tim Savannah <kata198@gmail.com>
+- Change static pointer mallocs to all using static arrays
+- Remove crazy new warning on gcc 7.1
+- Fix bug where on the 'replace exe name' variants ( like ps2r ) we would NOT
+match on the replaced name, but rather on the prior name.
+- Use errno better
+- Make native "pidof2" and "mypidof2" instead of the shell hacks from previous
+version, which perform "pidof" acts on matches using all procs and
+current-user procs
+
 * Jun 8 2017 Tim Savannah <kata198@gmail.com>
 - 7.1
 - Many more optimizations
