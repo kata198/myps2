@@ -68,6 +68,11 @@
 // This is extra size to account for null terminators and command name in addition to the longest argv possible. If you need to use this on a system without a lot of memory for some reason, adjust this to a smaller value and define ARG_MAX to be something smaller.
 #define EXTRA_ARG_BUFFER 2000
 
+/* Don't use output buffer on "pidof" commands */
+#ifdef PIDOF
+#define NO_OUTPUT_BUFFER
+#endif
+
 #if !defined(NO_OUTPUT_BUFFER) && ( !defined(OUTPUT_BUFFER_SIZE) || OUTPUT_BUFFER_SIZE > 0)
   #ifndef OUTPUT_BUFFER_SIZE
     /* Default 16K */
