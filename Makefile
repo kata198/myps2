@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-CFLAGS ?= -O3 -mtune=native -Wall
+CFLAGS ?= -O3 -mtune=native -Wall -Wno-format-overflow
 EXTRA_ALL_PROCS_FLAGS=
 COMPILER ?= gcc
 
