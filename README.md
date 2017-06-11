@@ -48,6 +48,11 @@ myps2\_quoted, ps2\_quoted, yourps2\_quoted - These group each argument to the p
 myps2\_cmdonly, ps2\_cmdonly yourps2\_cmdonly - Show only the command name, no arguments. This can be useful for use with other applications that only use the command name, like killall and pidof.
 
 
+**pidof2** - Prints pids of all matches against all users
+
+**mypidof2** - Prints pids of all matches against current user
+
+
 Showing Real Paths of Executables
 ---------------------------------
 
