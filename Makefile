@@ -57,7 +57,8 @@ all: \
 	bindir/pst2r_cmdonly \
 	bindir/pst2r_quoted \
 	bindir/pidof2 \
-	bindir/mypidof2
+	bindir/mypidof2 \
+	bindir/yourpidof2
 
 .PHONY: debug
 debug: 
@@ -195,6 +196,8 @@ bindir/pidof2: ${DEP_FILES}
 bindir/mypidof2: ${DEP_FILES}
 	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D PIDOF myps2.c -o bindir/mypidof2
 
+bindir/yourpidof2: ${DEP_FILES}
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D PIDOF -D OTHER_USER_PROCS myps2.c -o bindir/yourpidof2
 
 clean:
 	rm -f bindir/*
