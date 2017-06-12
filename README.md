@@ -52,6 +52,8 @@ myps2\_cmdonly, ps2\_cmdonly yourps2\_cmdonly - Show only the command name, no a
 
 **mypidof2** - Prints pids of all matches against current user
 
+**yourpidof2** - Prints pids of all matches against a given user
+
 
 Showing Real Paths of Executables
 ---------------------------------

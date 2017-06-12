@@ -7,6 +7,7 @@ match on the replaced name, but rather on the prior name.
 - Make native "pidof2" and "mypidof2" instead of the shell hacks from previous
 version, which perform "pidof" acts on matches using all procs and
 current-user procs
+- Add "yourpidof2" to get just the matching pids of a provided user
 
 * Jun 8 2017 Tim Savannah <kata198@gmail.com>
 - 7.1
