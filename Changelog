@@ -1,4 +1,10 @@
 * Feb 20 2018 Tim Savannah <kata198@gmail.com>
+=== Release 7.2.2 - Fixup pidoft2 ===
+
+- Fixed pidoft2 - Makefile was neglecting to include " -D PIDOF " when compiling pidoft2, which resulted in unexpected output (not pid-noly output).
+
+
+* Feb 20 2018 Tim Savannah <kata198@gmail.com>
 === Release 7.2.1 - Some additional commands ===
 
 - Added pidoft2, mypidoft2, yourpidoft2 which are the pidof variants (with a t before the "2"), which also include thread ids
