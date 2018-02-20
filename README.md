@@ -22,6 +22,12 @@ Performance is amazing. On my personal machine, using the latest version, "myps"
 Applications
 ============
 
+Ps Alternatives
+---------------
+
+These are variants of the "ps" program, only showing pid and full commandline. Each "search" argument (can provide unlimited) is treated as an AND to all previous matches, for example:  "ps2 myprog arg1 arg2" will match processes run by any user where the commandline string contains "myprog" AND "arg1" AND "arg2". This is a much better and more stable way than "ps aux | grep myprog | grep ..." 
+
+
 There are  three major variants, and several minor variants.
 
 The three majors are "myps2", "yourps2", and "ps2".
@@ -48,11 +54,23 @@ myps2\_quoted, ps2\_quoted, yourps2\_quoted - These group each argument to the p
 myps2\_cmdonly, ps2\_cmdonly yourps2\_cmdonly - Show only the command name, no arguments. This can be useful for use with other applications that only use the command name, like killall and pidof.
 
 
-**pidof2** - Prints pids of all matches against all users
+Pidof Alternatives
+------------------
 
-**mypidof2** - Prints pids of all matches against current user
+The following are alternatives to the "pidof" function (used to gather pids based on an executable name). They perform the same advanced matching as the "myps2" and related programs, except they output only pids, very useful within scripts like: "renice -n-2 $(pidof2 httpd /etc/httpd/conf/mysite.conf) " to renice a specific subset of httpd processes.
 
-**yourpidof2** - Prints pids of all matches against a given user
+
+**pidof2** - Prints pids of all matches against all users (Only pids)
+
+	* **pidoft2** - Prints pids of all matches against all users, also including thread pids of matched processes
+
+**mypidof2** - Prints pids of all matches against current user (Only pids)
+
+	* **mypidoft2** - Prints pids of all matches against current user (Only pids), also including thread pids of matched processes
+
+**yourpidof2** - Prints pids of all matches against a given user \[first arg\] (Only pids)
+
+	* **yourpidoft2** - Prints pids of all matches against a given user \[first arg\] (Only pids), also including thread pids of matched processes
 
 
 Showing Real Paths of Executables
