@@ -1,4 +1,11 @@
 * Feb 20 2018 Tim Savannah <kata198@gmail.com>
+=== Release 7.2.1 - Some additional commands ===
+
+- Added pidoft2, mypidoft2, yourpidoft2 which are the pidof variants (with a t before the "2"), which also include thread ids
+- Fix yourpidof2 missing from install.sh (and added all additionals as part of this release) -- would have installed previously with recommended Makefile approach
+- Cleaned up some indentation in myps2.c making preprocessor directives more clear
+
+* Feb 20 2018 Tim Savannah <kata198@gmail.com>
 === Release 7.2.0 - Releasing unreleased work on myps2 from june 2017 ===
 
 - Change static pointer mallocs to all using static arrays
