@@ -42,7 +42,11 @@ export TARGETS="bindir/myps2 \
 	bindir/pst2r_cmdonly \
 	bindir/pst2r_quoted \
 	bindir/pidof2 \
-	bindir/mypidof2"
+	bindir/pidoft2 \
+	bindir/mypidof2 \
+	bindir/mypidoft2 \
+	bindir/yourpidof2 \
+	bindir/yourpidoft2"
 
 make all || ./build.sh;
 
