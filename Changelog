@@ -1,7 +1,8 @@
 * Feb 20 2018 Tim Savannah <kata198@gmail.com>
-=== Release 7.2.2 - Fixup pidoft2 ===
+=== Release 7.2.2 - Minor fixups ===
 
 - Fixed pidoft2 - Makefile was neglecting to include " -D PIDOF " when compiling pidoft2, which resulted in unexpected output (not pid-noly output).
+- Expand README.md to note additional "pidoft2" variants, and a little extra info / sections
 
 
 * Feb 20 2018 Tim Savannah <kata198@gmail.com>
