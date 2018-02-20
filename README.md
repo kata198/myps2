@@ -62,15 +62,15 @@ The following are alternatives to the "pidof" function (used to gather pids base
 
 **pidof2** - Prints pids of all matches against all users (Only pids)
 
-	* **pidoft2** - Prints pids of all matches against all users, also including thread pids of matched processes
+* **pidoft2** - Prints pids of all matches against all users, also including thread pids of matched processes
 
 **mypidof2** - Prints pids of all matches against current user (Only pids)
 
-	* **mypidoft2** - Prints pids of all matches against current user (Only pids), also including thread pids of matched processes
+* **mypidoft2** - Prints pids of all matches against current user (Only pids), also including thread pids of matched processes
 
 **yourpidof2** - Prints pids of all matches against a given user \[first arg\] (Only pids)
 
-	* **yourpidoft2** - Prints pids of all matches against a given user \[first arg\] (Only pids), also including thread pids of matched processes
+* **yourpidoft2** - Prints pids of all matches against a given user \[first arg\] (Only pids), also including thread pids of matched processes
 
 
 Showing Real Paths of Executables
