@@ -1,4 +1,6 @@
-* ??? ? ???? Tim Savannah <kata198@gmail.com>
+* Feb 20 2018 Tim Savannah <kata198@gmail.com>
+=== Release 7.2.0 - Releasing unreleased work on myps2 from june 2017 ===
+
 - Change static pointer mallocs to all using static arrays
 - Remove crazy new warning on gcc 7.1
 - Fix bug where on the 'replace exe name' variants ( like ps2r ) we would NOT
