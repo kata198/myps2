@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016 Tim Savannah <kata198@gmail.com> under GPLv3.
+ * Copyright (c) 2015, 2016, 2017, 2018 Tim Savannah <kata198@gmail.com> under GPLv3.
  * See LICENSE file for more information.
  *
  *
