@@ -194,11 +194,10 @@ bindir/pst2r_quoted: ${DEP_FILES}
 	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D QUOTE_ARGS -D ALL_PROCS -D SHOW_THREADS -D REPLACE_EXE_NAME myps2.c -o bindir/pst2r_quoted
 
 bindir/pidof2: ${DEP_FILES}
-	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D PIDOF myps2.c -o bindir/pidof2
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D PIDOF -D ALL_PROCS myps2.c -o bindir/pidof2
 
 bindir/pidoft2: ${DEP_FILES}
-	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D SHOW_THREADS myps2.c -o bindir/pidoft2
-
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D PIDOF -D ALL_PROCS -D SHOW_THREADS myps2.c -o bindir/pidoft2
 
 bindir/mypidof2: ${DEP_FILES}
 	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D PIDOF myps2.c -o bindir/mypidof2
