@@ -57,8 +57,11 @@ all: \
 	bindir/pst2r_cmdonly \
 	bindir/pst2r_quoted \
 	bindir/pidof2 \
+	bindir/pidoft2 \
 	bindir/mypidof2 \
-	bindir/yourpidof2
+	bindir/mypidoft2 \
+	bindir/yourpidof2 \
+	bindir/yourpidoft2
 
 .PHONY: debug
 debug: 
@@ -193,11 +196,21 @@ bindir/pst2r_quoted: ${DEP_FILES}
 bindir/pidof2: ${DEP_FILES}
 	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D PIDOF myps2.c -o bindir/pidof2
 
+bindir/pidoft2: ${DEP_FILES}
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D ALL_PROCS -D SHOW_THREADS myps2.c -o bindir/pidoft2
+
+
 bindir/mypidof2: ${DEP_FILES}
 	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D PIDOF myps2.c -o bindir/mypidof2
 
+bindir/mypidoft2: ${DEP_FILES}
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D PIDOF -D SHOW_THREADS myps2.c -o bindir/mypidoft2
+
 bindir/yourpidof2: ${DEP_FILES}
 	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D PIDOF -D OTHER_USER_PROCS myps2.c -o bindir/yourpidof2
+
+bindir/yourpidoft2: ${DEP_FILES}
+	${COMPILER} ${USE_CFLAGS} ${EXTRA_ALL_PROCS_FLAGS} -D PIDOF -D SHOW_THREADS -D OTHER_USER_PROCS myps2.c -o bindir/yourpidoft2
 
 clean:
 	rm -f bindir/*

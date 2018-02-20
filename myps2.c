@@ -439,63 +439,67 @@ __hot static void printCmdLineStr(char *pidStr
                 putchar(' ');
           anyResults = 1;
           printf("%s", pidStr);
-          return;
+          #ifndef SHOW_THREADS
+            /* If we aren't showing thread pids, can skip remainder of function */
+            return;
+          #endif
         #else
 
-        #ifdef ALL_PROCS
-          #if defined(SHOW_THREADS)
-          /* Here we will use the already-found pwName from the parent process */
-          if (!parentPidStr)
-          {
-                  #endif
-                  pwName = linked_list_search(pwdInfo, ownerUid);
+          #ifdef ALL_PROCS
+            #if defined(SHOW_THREADS)
+            /* Here we will use the already-found pwName from the parent process */
+            if (!parentPidStr)
+            {
+            #endif
+                    pwName = linked_list_search(pwdInfo, ownerUid);
 
-                  if ( unlikely( pwName == NULL ) )
-                  {
-                          struct passwd *pwinfo = getpwuid(ownerUid);
-                          if ( unlikely( pwinfo == NULL ) )
-                                  return; // No longer active process
-                          pwName = malloc(strlen(pwinfo->pw_name)+1);
-                          strcpy(pwName, pwinfo->pw_name);
-                          linked_list_insert(pwdInfo, ownerUid, pwName);
-                  }
-          #if defined(SHOW_THREADS)
-          }
+                    if ( unlikely( pwName == NULL ) )
+                    {
+                            struct passwd *pwinfo = getpwuid(ownerUid);
+                            if ( unlikely( pwinfo == NULL ) )
+                                    return; // No longer active process
+                            pwName = malloc(strlen(pwinfo->pw_name)+1);
+                            strcpy(pwName, pwinfo->pw_name);
+                            linked_list_insert(pwdInfo, ownerUid, pwName);
+                    }
+            #if defined(SHOW_THREADS)
+            }
+            #endif
+
+            printf("%8s %10s\t%s", pidStr, pwName, cmdName);
+          #else
+            printf("%8s\t%s", pidStr, cmdName);
           #endif
 
-          printf("%8s %10s\t%s", pidStr, pwName, cmdName);
-        #else
-          printf("%8s\t%s", pidStr, cmdName);
-        #endif
+
+          #ifndef CMD_ONLY
+            // Skip argument block in command only mode
+
+            register char *ptr = buffer;
+            while(*(++ptr));
+            if( (ptr - buffer) >= bufferLen + 1)
+            {
+                    printf("\n");
+                    return;
+            }
+            ptr++;
+
+            while( (ptr - buffer) < bufferLen )
+            {
+                    #ifdef QUOTE_ARGS
+                      tmpEscaped = escapeQuotes(ptr);
+                      printf(" \"%s\"", tmpEscaped);
+                      free(tmpEscaped);
+                    #else
+                      printf(" %s", ptr);
+                    #endif
+                    while(*(++ptr));
+                    ptr++;
+            }
+          #endif
+          putchar('\n');
 
         #endif
-
-        #ifndef CMD_ONLY
-          // Skip argument block in command only mode
-
-          register char *ptr = buffer;
-          while(*(++ptr));
-          if( (ptr - buffer) >= bufferLen + 1)
-          {
-                  printf("\n");
-                  return;
-          }
-          ptr++;
-
-          while( (ptr - buffer) < bufferLen )
-          {
-                  #ifdef QUOTE_ARGS
-                    tmpEscaped = escapeQuotes(ptr);
-                    printf(" \"%s\"", tmpEscaped);
-                    free(tmpEscaped);
-                  #else
-                    printf(" %s", ptr);
-                  #endif
-                  while(*(++ptr));
-                  ptr++;
-          }
-        #endif
-        putchar('\n');
 
         #ifdef SHOW_THREADS
           if(parentPidStr == NULL)
@@ -503,7 +507,9 @@ __hot static void printCmdLineStr(char *pidStr
                   DIR *taskDir;
                   struct dirent *dirInfo;
                   char *threadPid;
-                  short threadID = 0;
+                  #ifndef PIDOF
+                    short threadID = 0;
+                  #endif
 
                   sprintf(&parentDir[6], "%s/task", pidStr);
 
@@ -513,25 +519,28 @@ __hot static void printCmdLineStr(char *pidStr
                           threadPid = dirInfo->d_name;
                           if(!isdigit(threadPid[0]) || strcmp(threadPid, pidStr) == 0)
                                   continue;
-                          if(threadID == 0)
-                          {
-                                  #ifdef THREADS_USE_TREE
-                                    printf("     |\n     \\ ____\n");
-                                  #endif
-                                  threadID = 1;
-                          }
+                          #ifdef PIDOF
 
-                          #ifndef THREADS_VIEW_FULL
-                            #ifdef THREADS_USE_TREE
-                              printf("\t%8s\tThread [%2u] ( %s )\n", threadPid, threadID, cmdName);
-                            #else
-                              #ifdef ALL_PROCS
-                                printf("%8s %10s\t(Thread [%2u] of %s)\n", threadPid, pwName, threadID, pidStr);
-                              #else
-                                printf("%8s\t(Thread [%2u] of %s)\n", threadPid, threadID, pidStr);
-                              #endif
-                            #endif
+                            printf(" %s", threadPid);
                           #else
+                            if(threadID == 0)
+                            {
+                                    #ifdef THREADS_USE_TREE
+                                      printf("     |\n     \\ ____\n");
+                                    #endif
+                                    threadID = 1;
+                            }
+                            #ifdef THREADS_VIEW_FULL
+                              #ifdef THREADS_USE_TREE
+                                printf("\t%8s\tThread [%2u] ( %s )\n", threadPid, threadID, cmdName);
+                              #else
+                                #ifdef ALL_PROCS
+                                  printf("%8s %10s\t(Thread [%2u] of %s)\n", threadPid, pwName, threadID, pidStr);
+                                #else
+                                  printf("%8s\t(Thread [%2u] of %s)\n", threadPid, threadID, pidStr);
+                                #endif
+                              #endif
+                            #else
                             /* THREADS_VIEW_FULL - recurse */
                             printCmdLineStr(threadPid
                                                         #ifdef ALL_PROCS
@@ -539,13 +548,16 @@ __hot static void printCmdLineStr(char *pidStr
                                                         #endif
                                                           ,pidStr
                             );
+                            #endif
+                            threadID++;
                           #endif
-                          threadID++;
                   }
                   free(taskDir);
-                  #ifdef THREADS_USE_TREE
-                  if(threadID >= 1)
-                        putchar('\n');
+                  #ifndef PIDOF
+                    #ifdef THREADS_USE_TREE
+                    if(threadID >= 1)
+                          putchar('\n');
+                    #endif
                   #endif
 
           }
