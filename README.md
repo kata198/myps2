@@ -9,7 +9,9 @@ Each operation is a different command for maximum speed and simplicity.  All com
 It supports showing processes only, or threads and processes.
 When showing threads, it draws a tree relating them to the parent process.
 
-The output is VERY CLEAN and easilly parsed. For 99% of the usage of ps in the real-world, this displays all the info you need, quicker, simpler, and without looking up many flags.
+pidof2 also catches a lot of processes/threads that pidof2 simply misses, which is important for things like re-nicing processes.
+
+The output is VERY CLEAN and easilly parsed. For 99% of the usage of ps2 in the real-world, this displays all the info you need, quicker, simpler, and without looking up many flags.
 
 It is also annoying to constantly have to type "| grep" over and over, and inefficent to feed to another program what one can do. Any additional arguments to these programs will filter based on the commandline string containing those items.
 
@@ -18,6 +20,7 @@ Performance
 ===========
 
 Performance is amazing. On my personal machine, using the latest version, "myps" consistantly averaged 850% faster than "ps auxww | grep $USERNAME". None of the variant commands (\_whatever) have a noticable loss over the base. The "mypst2" and "pst2" commands (including threads) average 950% faster than the ps auxwwH equivlant.
+
 
 Applications
 ============
@@ -81,8 +84,10 @@ Adding an "r" after the "2" of any command will resolve the full executable name
 Examples: ps2r mypst2r ps2r\_cmdonly
 
 
-Example
-=======
+Examples
+========
+
+**Show all processes and threads with quoted args running as user, "root"**
 
 	[media@silverslave myps2]$ yourpst2_quoted root
 	1        /sbin/init
@@ -110,6 +115,66 @@ Example
 		726        Thread [2] ( /usr/lib/udisks2/udisksd )
 		730        Thread [3] ( /usr/lib/udisks2/udisksd )
 		737        Thread [4] ( /usr/lib/udisks2/udisksd )
+
+
+Example vs pidof
+----------------
+
+As stated earlier, "myps2" without all kinds of args, grepping and awk/sed-ing, allows you much more control and ease dealing with searching running processes.
+
+
+**Example for changing nice/scheduler policy**
+
+Many folks will find advantage of maxing their throughput/interactivity experience by changing nice levels and scheduler policies.
+
+Here's a simple example of using "pidof" vs myps2's pidof2 implementation for renicing Xorg.
+
+	[tim@localhost ~]$ schedtool `pidof Xorg`  # Show current scheduler info on "Xorg"
+
+	PID   746: PRIO   0, POLICY N: SCHED_NORMAL  , NICE  0, AFFINITY 0x7
+
+Notice, we only got one result. And it's true, "ps aux" only shows 1 procsss as well.
+
+So let's go ahead and update the nice level here:
+
+	[tim@localhost ~]$ schedtool -n-5 `pidof Xorg`  # Set nice level to -5
+
+	PID   746: PRIO   0, POLICY N: SCHED_NORMAL  , NICE  -5, AFFINITY 0x7
+
+While this looks like everything went well, let's see the current state of things using *pidoft2*..
+
+	[stim@localhost ~]$ schedtool `pidoft2 Xorg`
+
+	PID   746: PRIO   0, POLICY N: SCHED_NORMAL  , NICE  -5, AFFINITY 0x7
+
+	PID   752: PRIO   0, POLICY N: SCHED_NORMAL  , NICE   0, AFFINITY 0x7
+
+	PID   753: PRIO   0, POLICY N: SCHED_NORMAL  , NICE   0, AFFINITY 0x7
+
+	PID   754: PRIO   0, POLICY N: SCHED_NORMAL  , NICE   0, AFFINITY 0x7
+	
+	PID   757: PRIO   0, POLICY N: SCHED_NORMAL  , NICE   0, AFFINITY 0x7
+
+Wow! So several of the X workers are NOT running at nice=-5. Sure, we could get these numbers from a "ps auxH -T" and some fancy shell voodoo, but such is completely impossible with the "pidof" command.
+
+So let's try again with pidoft2:
+
+	[tim@localhost ~]$ sudo schedtool -n-5 `pidoft2 Xorg`
+
+	[tim@slimsilver ~]$ schedtool `pidoft2 Xorg`
+
+	PID   746: PRIO   0, POLICY N: SCHED_NORMAL  , NICE  -5, AFFINITY 0x7
+
+	PID   752: PRIO   0, POLICY N: SCHED_NORMAL  , NICE  -5, AFFINITY 0x7
+
+	PID   753: PRIO   0, POLICY N: SCHED_NORMAL  , NICE  -5, AFFINITY 0x7
+
+	PID   754: PRIO   0, POLICY N: SCHED_NORMAL  , NICE  -5, AFFINITY 0x7
+
+	PID   757: PRIO   0, POLICY N: SCHED_NORMAL  , NICE  -5, AFFINITY 0x7
+
+That's better!
+
 
 Filtering
 =========
