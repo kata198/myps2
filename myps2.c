@@ -81,7 +81,7 @@
 #endif
 
 volatile const char *author = "Created by Tim Savannah <kata198@gmail.com>. I love you all so much.";
-volatile const char *version = "7.2.2";
+volatile const char *version = "7.2.3";
 
 static char **searchItems = NULL;
 #ifdef PIDOF
