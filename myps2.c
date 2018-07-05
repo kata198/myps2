@@ -210,8 +210,10 @@ static int anyResults = 0;
 
 #endif
 
-
-static char *strnstr(char *haystack, char *needle, unsigned int len)
+/* On cygwin and BSD the strnstr function is already defined in string.h 
+     So prefix our function as myps2_strnstr
+*/
+static char *myps2_strnstr(const char *haystack, const char *needle, size_t len)
 {
     unsigned int i, j;
     char *ret;
@@ -220,7 +222,7 @@ static char *strnstr(char *haystack, char *needle, unsigned int len)
     {
         if(haystack[i] == needle[0])
         {
-            ret = &haystack[i];
+            ret = (char *)&haystack[i];
             i++;
             for(j=1; i < len; i++, j++ )
             {
@@ -236,7 +238,6 @@ static char *strnstr(char *haystack, char *needle, unsigned int len)
     }
     return NULL;
 }
-
 
 #ifdef SHOW_THREADS
   #ifndef THREADS_VIEW_FLAT
@@ -409,14 +410,14 @@ __hot static void printCmdLineStr(char *pidStr
                         {
                                 #ifdef CMD_ONLY
                                   // Command only we want the first arg only
-                                  if(strnstr(cmdName, searchItems[searchI], cmdNameLen) == NULL)
+                                  if(myps2_strnstr(cmdName, searchItems[searchI], cmdNameLen) == NULL)
                                           return;
                                 #else
                                   #if defined(REPLACE_EXE_NAME) && !defined(CMD_ONLY)
-                                    if( strnstr(useBuffer, searchItems[searchI], useBufferLen ) == NULL && strstr(cmdName, searchItems[searchI]) == NULL )
+                                    if( myps2_strnstr(useBuffer, searchItems[searchI], useBufferLen ) == NULL && strstr(cmdName, searchItems[searchI]) == NULL )
                                         return;
                                   #else
-                                    if(strnstr(buffer, searchItems[searchI], bufferLen) == NULL)
+                                    if(myps2_strnstr(buffer, searchItems[searchI], bufferLen) == NULL)
                                           return;
                                   #endif
                                 #endif
