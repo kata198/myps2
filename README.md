@@ -9,9 +9,9 @@ Each operation is a different command for maximum speed and simplicity.  All com
 It supports showing processes only, or threads and processes.
 When showing threads, it draws a tree relating them to the parent process.
 
-pidof2 also catches a lot of processes/threads that pidof2 simply misses, which is important for things like re-nicing processes.
+*pidof2* also catches a lot of processes/threads that the stock *pidof* simply misses, which is important for things like re-nicing processes.
 
-The output is VERY CLEAN and easilly parsed. For 99% of the usage of ps2 in the real-world, this displays all the info you need, quicker, simpler, and without looking up many flags.
+The output is VERY CLEAN and easilly parsed. For 99% of the usage of *ps2* in the real-world, this displays all the info you need, quicker, simpler, and without looking up many flags.
 
 It is also annoying to constantly have to type "| grep" over and over, and inefficent to feed to another program what one can do. Any additional arguments to these programs will filter based on the commandline string containing those items.
 
